@@ -1,6 +1,8 @@
 from fastapi import FastAPI, HTTPException, Query
 
 from app.checks.dns import check_dns
+from app.checks.http import check_http
+from app.checks.tls import check_tls
 from app.security import TargetValidationError, validate_target
 
 
@@ -40,7 +42,10 @@ def check_domain(
             detail=str(exc),
         ) from exc
 
-    results = check_dns(hostname, addresses)
+    results = []
+    results.extend(check_dns(hostname, addresses))
+    results.extend(check_tls(hostname, addresses))
+    results.extend(check_http(hostname, addresses))
 
     return {
         "hostname": hostname,
