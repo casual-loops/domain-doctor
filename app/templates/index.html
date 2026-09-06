@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+		<title>Domain Doctor | DNS, TLS, HTTPS & Security Diagnostics</title>
+
+		<meta
+			name="description"
+			content="Check the public-facing health of a hostname across DNS, TLS certificates, HTTPS redirects, response behavior, and browser security headers."
+		/>
+
+		<meta name="author" content="casual-loops" />
+
+		<meta name="application-name" content="Domain Doctor" />
+
+		<meta name="theme-color" content="#0a0c0f" />
+
+		<meta name="color-scheme" content="dark" />
+
+		<meta name="robots" content="index, follow" />
+
+		<link rel="stylesheet" href="/static/style.css" />
+
+		<script src="/static/app.js" defer></script>
+	</head>
+
+	<body>
+		<div class="site-shell">
+			<header class="site-header">
+				<a class="brand" href="/">
+					<span class="brand-mark">●</span>
+					DOMAIN DOCTOR
+				</a>
+
+				<nav class="site-nav" aria-label="Primary navigation">
+					<a
+						href="https://github.com/casual-loops/domain-doctor"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						GitHub
+					</a>
+
+					<a href="/docs"> API Docs </a>
+
+					<button
+						type="button"
+						class="theme-toggle"
+						data-theme-toggle
+						aria-label="Switch color theme"
+						title="Switch color theme"
+					>
+						<span data-theme-icon>☼</span>
+						<span data-theme-label>Light</span>
+					</button>
+				</nav>
+			</header>
+
+			<main class="landing-main">
+				<section class="hero">
+					<p class="eyebrow">OUTSIDE-IN INFRASTRUCTURE DIAGNOSTICS</p>
+
+					<h1>Know what the internet sees.</h1>
+
+					<p class="hero-copy">
+						Check DNS, TLS certificates, HTTPS behavior, redirects, and common
+						browser security headers from a single public hostname.
+					</p>
+
+					<form
+						action="/check"
+						method="get"
+						class="check-form"
+						data-diagnostic-form
+					>
+						<label for="host" class="sr-only"> Public hostname </label>
+
+						<div class="input-shell">
+							<span class="input-prompt">›</span>
+
+							<input
+								id="host"
+								name="host"
+								type="text"
+								placeholder="example.com"
+								autocomplete="off"
+								autocapitalize="none"
+								spellcheck="false"
+								required
+							/>
+						</div>
+
+						<button type="submit">Run Check</button>
+					</form>
+
+					<div class="try-row">
+						<span>Try:</span>
+
+						<button type="button" class="example-host" data-host="github.com">
+							github.com
+						</button>
+
+						<button type="button" class="example-host" data-host="example.com">
+							example.com
+						</button>
+
+						<button
+							type="button"
+							class="example-host"
+							data-host="cloudflare.com"
+						>
+							cloudflare.com
+						</button>
+					</div>
+				</section>
+
+				<section class="capability-grid" aria-label="Diagnostic capabilities">
+					<article class="capability">
+						<span class="capability-dot"></span>
+						<span class="capability-name">DNS</span>
+						<span class="capability-copy">
+							Resolution and address families
+						</span>
+					</article>
+
+					<article class="capability">
+						<span class="capability-dot"></span>
+						<span class="capability-name">TLS</span>
+						<span class="capability-copy">
+							Certificates, validity, and hostname coverage
+						</span>
+					</article>
+
+					<article class="capability">
+						<span class="capability-dot"></span>
+						<span class="capability-name">HTTPS</span>
+						<span class="capability-copy">
+							Reachability, redirects, and response behavior
+						</span>
+					</article>
+
+					<article class="capability">
+						<span class="capability-dot"></span>
+						<span class="capability-name">SECURITY</span>
+						<span class="capability-copy">
+							Common browser security headers
+						</span>
+					</article>
+				</section>
+
+				<section class="trust-strip">
+					<span>OPEN SOURCE</span>
+					<span>NO ACCOUNT REQUIRED</span>
+					<span>PUBLIC HOSTNAMES ONLY</span>
+					<span>PORTS 80 / 443</span>
+				</section>
+			</main>
+
+			<footer class="site-footer">
+				<p>Domain Doctor is an open-source outside-in diagnostic tool.</p>
+
+				<p>
+					Built by
+					<a
+						href="https://github.com/casual-loops"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						casual-loops
+					</a>
+					·
+					<a
+						href="https://github.com/casual-loops/domain-doctor"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						Source
+					</a>
+					·
+					<a href="/docs"> API </a>
+				</p>
+			</footer>
+		</div>
+
+		<div
+			class="loading-overlay"
+			data-loading-overlay
+			aria-live="polite"
+			aria-hidden="true"
+		>
+			<div class="loading-panel">
+				<div class="scanner-ring"></div>
+
+				<p class="loading-label">RUNNING DIAGNOSTICS</p>
+
+				<p class="loading-stage" data-loading-stage>Preparing scan...</p>
+			</div>
+		</div>
+	</body>
+</html>
