@@ -15,7 +15,7 @@ from app.security import TargetValidationError, validate_target
 
 app = FastAPI(
     title="Domain Doctor",
-    version="0.1.0",
+    version="1.0.0",
     description="Outside-in health checks for public domains and web services.",
 )
 
@@ -84,7 +84,7 @@ def root(request: Request):
 def health():
     return {
         "status": "ok",
-        "version": "0.1.0",
+        "version": "1.0.0",
     }
 
 
