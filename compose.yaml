@@ -1,0 +1,18 @@
+services:
+  app:
+    build:
+      context: .
+    image: domain-doctor:dev
+
+    ports:
+      - "8001:8000"
+
+    restart: unless-stopped
+
+    init: true
+
+    security_opt:
+      - no-new-privileges:true
+
+    cap_drop:
+      - ALL
