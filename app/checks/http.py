@@ -77,13 +77,17 @@ class _PinnedHTTPSConnection(http.client.HTTPSConnection):
         port: int,
         timeout: int,
     ):
+        ssl_context = ssl.create_default_context()
+
         super().__init__(
             host=hostname,
             port=port,
             timeout=timeout,
-            context=ssl.create_default_context(),
+            context=ssl_context,
         )
+
         self._validated_address = address
+        self._ssl_context = ssl_context
 
     def connect(self):
         raw_socket = socket.create_connection(
@@ -91,7 +95,7 @@ class _PinnedHTTPSConnection(http.client.HTTPSConnection):
             timeout=self.timeout,
         )
 
-        self.sock = self._context.wrap_socket(
+        self.sock = self._ssl_context.wrap_socket(
             raw_socket,
             server_hostname=self.host,
         )
@@ -273,10 +277,17 @@ def _trace_detail(trace: HttpTrace) -> str:
 
     return detail
 
+def inspect_https(hostname: str) -> HttpTrace:
+    """Return the validated HTTPS redirect trace for a hostname."""
+
+    return _follow_redirects(
+        f"https://{hostname}/"
+    )
 
 def check_http(
     hostname: str,
     addresses: list[str],
+    https_trace: HttpTrace | None = None,
 ) -> list[CheckResult]:
     """
     Check HTTP reachability, HTTPS redirection, and final HTTPS response.
@@ -380,9 +391,8 @@ def check_http(
             )
         )
 
-    https_trace = _follow_redirects(
-        f"https://{hostname}/"
-    )
+    if https_trace is None:
+        https_trace = inspect_https(hostname)
 
     final_https = https_trace.final
 
