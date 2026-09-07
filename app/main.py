@@ -80,6 +80,14 @@ def root(request: Request):
     )
 
 
+@app.get("/privacy", response_class=HTMLResponse)
+def privacy(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="privacy.html",
+    )
+
+
 @app.get("/health")
 def health():
     return {
