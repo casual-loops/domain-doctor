@@ -187,6 +187,12 @@ document.addEventListener("DOMContentLoaded", () => {
 		});
 	});
 
+	document.querySelectorAll("[data-analytics-event]").forEach((element) => {
+		element.addEventListener("click", () => {
+			trackEvent(element.dataset.analyticsEvent);
+		});
+	});
+
 	document
 		.querySelectorAll('a[href="https://github.com/casual-loops/domain-doctor"]')
 		.forEach((element) => {
@@ -210,9 +216,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	}
 
 	const filterButtons = document.querySelectorAll("[data-status-filter]");
-
 	const resultRows = document.querySelectorAll("[data-result-status]");
-
 	const resultGroups = document.querySelectorAll("[data-result-group]");
 
 	filterButtons.forEach((button) => {
@@ -223,7 +227,6 @@ document.addEventListener("DOMContentLoaded", () => {
 				const isActive = candidate === button;
 
 				candidate.classList.toggle("active", isActive);
-
 				candidate.setAttribute("aria-pressed", isActive ? "true" : "false");
 			});
 
@@ -237,9 +240,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 			resultGroups.forEach((group) => {
 				const rows = group.querySelectorAll("[data-result-status]");
-
 				const visibleRows = Array.from(rows).filter((row) => !row.hidden);
-
 				const emptyMessage = group.querySelector("[data-no-results]");
 
 				if (emptyMessage) {
