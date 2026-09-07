@@ -1,3 +1,93 @@
+(function () {
+	const analyticsHostname = "domaindoctor.fyi";
+	const analyticsWebsiteId = "15999a2d-f021-4678-9b84-51f61b9c8f7f";
+	const queuedAnalyticsEvents = [];
+
+	function sanitizeLocation(value) {
+		if (!value) {
+			return value;
+		}
+
+		try {
+			const parsed = new URL(value, window.location.origin);
+
+			if (parsed.origin === window.location.origin) {
+				return parsed.pathname;
+			}
+
+			return `${parsed.origin}${parsed.pathname}`;
+		} catch {
+			return String(value).split(/[?#]/, 1)[0];
+		}
+	}
+
+	window.domainDoctorAnalyticsBeforeSend = function (type, payload) {
+		if (!payload) {
+			return payload;
+		}
+
+		const sanitized = { ...payload };
+
+		if (sanitized.url) {
+			sanitized.url = sanitizeLocation(sanitized.url);
+		}
+
+		if (sanitized.referrer) {
+			sanitized.referrer = sanitizeLocation(sanitized.referrer);
+		}
+
+		if (window.location.pathname === "/check") {
+			sanitized.title = "Diagnostic Report | Domain Doctor";
+		}
+
+		return sanitized;
+	};
+
+	function flushQueuedAnalyticsEvents() {
+		if (!window.umami || typeof window.umami.track !== "function") {
+			return;
+		}
+
+		while (queuedAnalyticsEvents.length > 0) {
+			window.umami.track(queuedAnalyticsEvents.shift());
+		}
+	}
+
+	window.trackDomainDoctorEvent = function (eventName) {
+		if (window.location.hostname !== analyticsHostname) {
+			return;
+		}
+
+		if (window.umami && typeof window.umami.track === "function") {
+			window.umami.track(eventName);
+			return;
+		}
+
+		queuedAnalyticsEvents.push(eventName);
+	};
+
+	function loadAnalytics() {
+		if (window.location.hostname !== analyticsHostname) {
+			return;
+		}
+
+		const script = document.createElement("script");
+		script.defer = true;
+		script.src = "https://cloud.umami.is/script.js";
+		script.dataset.websiteId = analyticsWebsiteId;
+		script.dataset.domains = analyticsHostname;
+		script.dataset.excludeSearch = "true";
+		script.dataset.excludeHash = "true";
+		script.dataset.doNotTrack = "true";
+		script.dataset.beforeSend = "domainDoctorAnalyticsBeforeSend";
+		script.addEventListener("load", flushQueuedAnalyticsEvents);
+
+		document.head.appendChild(script);
+	}
+
+	loadAnalytics();
+})();
+
 document.addEventListener("DOMContentLoaded", () => {
 	const overlay = document.querySelector("[data-loading-overlay]");
 	const stage = document.querySelector("[data-loading-stage]");
@@ -97,17 +187,25 @@ document.addEventListener("DOMContentLoaded", () => {
 		});
 	});
 
-	document.querySelectorAll("[data-analytics-event]").forEach((element) => {
+	document
+		.querySelectorAll('a[href="https://github.com/casual-loops/domain-doctor"]')
+		.forEach((element) => {
+			element.addEventListener("click", () => {
+				trackEvent("github-click");
+			});
+		});
+
+	document.querySelectorAll('a[href="/docs"]').forEach((element) => {
 		element.addEventListener("click", () => {
-			trackEvent(element.dataset.analyticsEvent);
+			trackEvent("api-docs-click");
 		});
 	});
 
-	if (document.body.dataset.scanOutcome === "completed") {
+	if (document.querySelector(".report-heading")) {
 		trackEvent("scan-completed");
 	}
 
-	if (document.body.dataset.scanOutcome === "blocked") {
+	if (document.querySelector(".error-panel")) {
 		trackEvent("scan-blocked");
 	}
 
