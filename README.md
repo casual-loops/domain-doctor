@@ -7,11 +7,13 @@
 
 **Know what the internet sees.**
 
+**Live site:** https://domaindoctor.fyi
+
 Domain Doctor is an open-source, outside-in diagnostic tool for inspecting the public-facing health of a hostname.
 
-Enter one public hostname and Domain Doctor checks DNS resolution, TLS certificates, HTTPS behavior, redirects, and common browser security headers.
+Enter one public hostname and Domain Doctor checks DNS resolution, TLS certificates, HTTPS behavior, redirects, and common browser security headers. No account is required.
 
-No account is required.
+Domain Doctor is also free to use as a teaching and learning tool for networking, cybersecurity, web infrastructure, IT support, and systems administration.
 
 ## What it checks
 
@@ -44,6 +46,16 @@ Domain Doctor includes a responsive browser interface with light and dark themes
 
 The same diagnostic engine is also available through a JSON API.
 
+## Teaching and learning
+
+Domain Doctor can be used as a free classroom or self-study tool to make otherwise abstract infrastructure concepts visible.
+
+Educators can use it to demonstrate DNS resolution, TLS certificates, HTTPS redirects, browser security headers, and layered troubleshooting with real public websites. Students can compare public sites, inspect technical evidence, and connect networking concepts to observable behavior without creating an account.
+
+The goal is not to make every website produce all PASS results. A warning may be completely acceptable depending on the site's architecture. The value is in understanding what each result means and why different websites behave differently.
+
+See the full [Teaching and Learning Guide](docs/EDUCATION.md) for classroom activities, discussion prompts, troubleshooting exercises, appropriate-use guidance, and student reflection questions.
+
 ## API
 
 Check a public hostname:
@@ -69,10 +81,10 @@ Example response:
 }
 ```
 
-Interactive OpenAPI documentation is available at:
+Interactive OpenAPI documentation is available on the live site at:
 
 ```text
-/docs
+https://domaindoctor.fyi/docs
 ```
 
 ## Security model
@@ -98,7 +110,7 @@ These controls reduce SSRF risk, but Domain Doctor should still be deployed as a
 Clone the repository:
 
 ```bash
-git clone git@github.com:casual-loops/domain-doctor.git
+git clone https://github.com/casual-loops/domain-doctor.git
 cd domain-doctor
 ```
 
@@ -154,7 +166,7 @@ Open:
 http://127.0.0.1:8000
 ```
 
-## Tests
+## Tests and container publishing
 
 The test suite avoids depending on live Internet services for automated checks. Network behavior is mocked where appropriate so CI results remain deterministic.
 
@@ -164,7 +176,15 @@ Run the suite with:
 python -m pytest -v
 ```
 
-GitHub Actions runs the same suite on pushes and pull requests to `main`.
+GitHub Actions runs the test suite on pushes and pull requests to `main`.
+
+A separate GitHub Actions workflow builds and publishes container images to GitHub Container Registry. Main-branch builds publish the `main` image and version tags publish release images.
+
+Container registry:
+
+```text
+ghcr.io/casual-loops/domain-doctor
+```
 
 ## Project structure
 
@@ -181,9 +201,13 @@ domain-doctor/
 │   ├── main.py
 │   ├── models.py
 │   └── security.py
+├── docs/
+│   ├── images/
+│   └── EDUCATION.md
 ├── tests/
 ├── .github/
 │   └── workflows/
+│       ├── publish-container.yml
 │       └── test.yml
 ├── Dockerfile
 ├── compose.yaml
@@ -191,6 +215,24 @@ domain-doctor/
 ├── requirements-dev.txt
 └── README.md
 ```
+
+## Production architecture
+
+The public service is deployed separately from the development environment.
+
+```text
+Internet
+  ↓
+domaindoctor.fyi
+  ↓
+Cloud firewall
+  ↓
+Caddy with automatic TLS
+  ↓
+Domain Doctor container bound to localhost
+```
+
+Production consumes the container image published by GitHub Actions rather than building application source directly on the production server.
 
 ## Current scope
 
