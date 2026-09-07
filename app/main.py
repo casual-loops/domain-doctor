@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timezone
 
 from fastapi import FastAPI, HTTPException, Query
@@ -10,7 +11,17 @@ from app.checks.dns import check_dns
 from app.checks.headers import check_security_headers
 from app.checks.http import check_http, inspect_https
 from app.checks.tls import check_tls
+from app.rate_limit import SlidingWindowRateLimiter, get_client_identifier
 from app.security import TargetValidationError, validate_target
+
+
+SCAN_RATE_LIMIT = int(os.getenv("SCAN_RATE_LIMIT", "30"))
+SCAN_RATE_WINDOW_SECONDS = int(os.getenv("SCAN_RATE_WINDOW_SECONDS", "60"))
+
+scan_rate_limiter = SlidingWindowRateLimiter(
+    max_requests=SCAN_RATE_LIMIT,
+    window_seconds=SCAN_RATE_WINDOW_SECONDS,
+)
 
 
 app = FastAPI(
@@ -72,6 +83,27 @@ def diagnose_host(host: str):
     return hostname, results
 
 
+def enforce_scan_rate_limit(request: Request):
+    client_identifier = get_client_identifier(request)
+    decision = scan_rate_limiter.check(client_identifier)
+
+    if not decision.allowed:
+        raise HTTPException(
+            status_code=429,
+            detail=(
+                "Too many diagnostic requests. "
+                "Please wait before running another check."
+            ),
+            headers={
+                "Retry-After": str(decision.retry_after),
+                "X-RateLimit-Limit": str(SCAN_RATE_LIMIT),
+                "X-RateLimit-Remaining": "0",
+            },
+        )
+
+    return decision
+
+
 @app.get("/", response_class=HTMLResponse)
 def root(request: Request):
     return templates.TemplateResponse(
@@ -102,7 +134,23 @@ def check_page(
     host: str = Query(...),
 ):
     try:
+        enforce_scan_rate_limit(request)
         hostname, results = diagnose_host(host)
+
+    except HTTPException as exc:
+        if exc.status_code != 429:
+            raise
+
+        return templates.TemplateResponse(
+            request=request,
+            name="report.html",
+            context={
+                "hostname": host,
+                "error": exc.detail,
+            },
+            status_code=429,
+            headers=exc.headers,
+        )
 
     except TargetValidationError as exc:
         return templates.TemplateResponse(
@@ -202,11 +250,14 @@ def check_page(
 
 @app.get("/api/check")
 def check_domain(
+    request: Request,
     host: str = Query(
         ...,
         description="Public hostname to inspect, such as example.com",
     ),
 ):
+    enforce_scan_rate_limit(request)
+
     try:
         hostname, results = diagnose_host(host)
 
