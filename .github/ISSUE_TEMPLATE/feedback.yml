@@ -1,6 +1,8 @@
 name: Domain Doctor feedback
 description: Share a bug, feature idea, usability concern, educator use case, or other feedback.
 title: "[Feedback] "
+assignees:
+  - casual-loops
 body:
   - type: markdown
     attributes:
