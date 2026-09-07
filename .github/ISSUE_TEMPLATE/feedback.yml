@@ -1,0 +1,78 @@
+name: Domain Doctor feedback
+description: Share a bug, feature idea, usability concern, educator use case, or other feedback.
+title: "[Feedback] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve Domain Doctor.
+
+        GitHub issues are public. Please do not include passwords, credentials, personal information, private hostnames, internal infrastructure names, or other sensitive information.
+
+  - type: dropdown
+    id: feedback_type
+    attributes:
+      label: Feedback type
+      description: What kind of feedback are you sharing?
+      options:
+        - Bug or unexpected behavior
+        - Feature idea
+        - Usability feedback
+        - Educator or classroom feedback
+        - Documentation feedback
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: goal
+    attributes:
+      label: What were you trying to do?
+      description: Briefly describe what you were using Domain Doctor for.
+      placeholder: I was trying to...
+    validations:
+      required: true
+
+  - type: textarea
+    id: feedback
+    attributes:
+      label: What happened, or what would you like to see?
+      description: For bugs, describe what you expected and what happened. For ideas, describe the change you would find useful.
+      placeholder: I expected... / It would be useful if...
+    validations:
+      required: true
+
+  - type: textarea
+    id: value
+    attributes:
+      label: Why would this be useful?
+      description: Optional context about the problem this would solve or the value it would add.
+      placeholder: This would help because...
+    validations:
+      required: false
+
+  - type: input
+    id: environment
+    attributes:
+      label: Browser or device
+      description: Optional. Include your browser, operating system, or device if it is relevant.
+      placeholder: Firefox on Windows 11, ChromeOS, Android, etc.
+    validations:
+      required: false
+
+  - type: textarea
+    id: education_context
+    attributes:
+      label: Education context
+      description: Optional. If you are using Domain Doctor for teaching or learning, share the subject area, learner level, activity, or classroom use case.
+      placeholder: Networking fundamentals with high school students, college cybersecurity lab, self-study, etc.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: public_content
+    attributes:
+      label: Public issue acknowledgement
+      options:
+        - label: I have not included credentials, personal information, private hostnames, internal infrastructure names, or other sensitive information.
+          required: true
