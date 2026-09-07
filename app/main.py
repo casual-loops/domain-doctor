@@ -15,11 +15,17 @@ from app.rate_limit import SlidingWindowRateLimiter, get_client_identifier
 from app.security import TargetValidationError, validate_target
 
 
-SCAN_RATE_LIMIT = int(os.getenv("SCAN_RATE_LIMIT", "30"))
+BROWSER_SCAN_RATE_LIMIT = int(os.getenv("BROWSER_SCAN_RATE_LIMIT", "60"))
+API_SCAN_RATE_LIMIT = int(os.getenv("API_SCAN_RATE_LIMIT", "30"))
 SCAN_RATE_WINDOW_SECONDS = int(os.getenv("SCAN_RATE_WINDOW_SECONDS", "60"))
 
-scan_rate_limiter = SlidingWindowRateLimiter(
-    max_requests=SCAN_RATE_LIMIT,
+browser_scan_rate_limiter = SlidingWindowRateLimiter(
+    max_requests=BROWSER_SCAN_RATE_LIMIT,
+    window_seconds=SCAN_RATE_WINDOW_SECONDS,
+)
+
+api_scan_rate_limiter = SlidingWindowRateLimiter(
+    max_requests=API_SCAN_RATE_LIMIT,
     window_seconds=SCAN_RATE_WINDOW_SECONDS,
 )
 
@@ -83,9 +89,13 @@ def diagnose_host(host: str):
     return hostname, results
 
 
-def enforce_scan_rate_limit(request: Request):
+def enforce_scan_rate_limit(
+    request: Request,
+    limiter: SlidingWindowRateLimiter,
+    limit: int,
+):
     client_identifier = get_client_identifier(request)
-    decision = scan_rate_limiter.check(client_identifier)
+    decision = limiter.check(client_identifier)
 
     if not decision.allowed:
         raise HTTPException(
@@ -96,7 +106,7 @@ def enforce_scan_rate_limit(request: Request):
             ),
             headers={
                 "Retry-After": str(decision.retry_after),
-                "X-RateLimit-Limit": str(SCAN_RATE_LIMIT),
+                "X-RateLimit-Limit": str(limit),
                 "X-RateLimit-Remaining": "0",
             },
         )
@@ -134,7 +144,11 @@ def check_page(
     host: str = Query(...),
 ):
     try:
-        enforce_scan_rate_limit(request)
+        enforce_scan_rate_limit(
+            request,
+            browser_scan_rate_limiter,
+            BROWSER_SCAN_RATE_LIMIT,
+        )
         hostname, results = diagnose_host(host)
 
     except HTTPException as exc:
@@ -256,7 +270,11 @@ def check_domain(
         description="Public hostname to inspect, such as example.com",
     ),
 ):
-    enforce_scan_rate_limit(request)
+    enforce_scan_rate_limit(
+        request,
+        api_scan_rate_limiter,
+        API_SCAN_RATE_LIMIT,
+    )
 
     try:
         hostname, results = diagnose_host(host)
