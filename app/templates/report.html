@@ -13,19 +13,30 @@
 		/>
 
 		<meta name="application-name" content="Domain Doctor" />
-
 		<meta name="theme-color" content="#0a0c0f" />
-
-		<meta name="color-scheme" content="dark" />
-
+		<meta name="color-scheme" content="dark light" />
 		<meta name="robots" content="noindex, follow" />
 
+		<link rel="canonical" href="https://domaindoctor.fyi/" />
+
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Domain Doctor" />
+		<meta
+			property="og:title"
+			content="{{ hostname }} Diagnostic Report | Domain Doctor"
+		/>
+		<meta
+			property="og:description"
+			content="DNS, TLS, HTTPS, redirect, and security diagnostics for {{ hostname }}."
+		/>
+		<meta
+			property="og:url"
+			content="https://domaindoctor.fyi/check?host={{ hostname }}"
+		/>
+
 		<link rel="icon" href="/static/favicon.ico" sizes="any" />
-
 		<link rel="apple-touch-icon" href="/static/domain-doctor-favicon.png" />
-
 		<link rel="stylesheet" href="/static/style.css" />
-
 		<script src="/static/app.js" defer></script>
 	</head>
 
