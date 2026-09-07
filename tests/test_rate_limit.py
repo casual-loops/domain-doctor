@@ -62,7 +62,8 @@ def test_api_check_returns_429_when_rate_limited(monkeypatch):
         window_seconds=60,
     )
 
-    monkeypatch.setattr(main, "scan_rate_limiter", limiter)
+    monkeypatch.setattr(main, "api_scan_rate_limiter", limiter)
+    monkeypatch.setattr(main, "API_SCAN_RATE_LIMIT", 1)
     monkeypatch.setattr(
         main,
         "diagnose_host",
@@ -84,6 +85,7 @@ def test_api_check_returns_429_when_rate_limited(monkeypatch):
     assert first.status_code == 200
     assert blocked.status_code == 429
     assert blocked.headers["retry-after"]
+    assert blocked.headers["x-ratelimit-limit"] == "1"
     assert blocked.json()["detail"].startswith("Too many diagnostic requests")
 
 
@@ -93,7 +95,8 @@ def test_report_returns_429_page_when_rate_limited(monkeypatch):
         window_seconds=60,
     )
 
-    monkeypatch.setattr(main, "scan_rate_limiter", limiter)
+    monkeypatch.setattr(main, "browser_scan_rate_limiter", limiter)
+    monkeypatch.setattr(main, "BROWSER_SCAN_RATE_LIMIT", 1)
     monkeypatch.setattr(
         main,
         "diagnose_host",
@@ -116,3 +119,45 @@ def test_report_returns_429_page_when_rate_limited(monkeypatch):
     assert blocked.status_code == 429
     assert "Too many diagnostic requests" in blocked.text
     assert blocked.headers["retry-after"]
+    assert blocked.headers["x-ratelimit-limit"] == "1"
+
+
+def test_browser_and_api_limits_use_separate_buckets(monkeypatch):
+    api_limiter = SlidingWindowRateLimiter(
+        max_requests=1,
+        window_seconds=60,
+    )
+    browser_limiter = SlidingWindowRateLimiter(
+        max_requests=1,
+        window_seconds=60,
+    )
+
+    monkeypatch.setattr(main, "api_scan_rate_limiter", api_limiter)
+    monkeypatch.setattr(main, "browser_scan_rate_limiter", browser_limiter)
+    monkeypatch.setattr(main, "API_SCAN_RATE_LIMIT", 1)
+    monkeypatch.setattr(main, "BROWSER_SCAN_RATE_LIMIT", 1)
+    monkeypatch.setattr(
+        main,
+        "diagnose_host",
+        lambda host: (
+            "example.com",
+            fake_results(),
+        ),
+    )
+
+    api_first = client.get(
+        "/api/check",
+        params={"host": "example.com"},
+    )
+    api_blocked = client.get(
+        "/api/check",
+        params={"host": "example.com"},
+    )
+    browser_first = client.get(
+        "/check",
+        params={"host": "example.com"},
+    )
+
+    assert api_first.status_code == 200
+    assert api_blocked.status_code == 429
+    assert browser_first.status_code == 200
