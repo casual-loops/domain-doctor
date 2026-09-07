@@ -5,22 +5,45 @@
 
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-		<title>Domain Doctor | DNS, TLS, HTTPS & Security Diagnostics</title>
+		<title>{{ hostname }} Diagnostic Report | Domain Doctor</title>
 
 		<meta
 			name="description"
-			content="Check the public-facing health of a hostname across DNS, TLS certificates, HTTPS redirects, response behavior, and browser security headers."
+			content="Domain Doctor diagnostic results for {{ hostname }}, including DNS, TLS, HTTPS, redirects, and security headers."
 		/>
-
-		<meta name="author" content="casual-loops" />
 
 		<meta name="application-name" content="Domain Doctor" />
 
 		<meta name="theme-color" content="#0a0c0f" />
 
-		<meta name="color-scheme" content="dark" />
+		<meta name="color-scheme" content="dark light" />
 
-		<meta name="robots" content="index, follow" />
+		<meta name="robots" content="noindex, follow" />
+
+		<link rel="canonical" href="https://domaindoctor.fyi/" />
+
+		<meta property="og:type" content="website" />
+
+		<meta property="og:site_name" content="Domain Doctor" />
+
+		<meta
+			property="og:title"
+			content="{{ hostname }} Diagnostic Report | Domain Doctor"
+		/>
+
+		<meta
+			property="og:description"
+			content="DNS, TLS, HTTPS, redirect, and security diagnostics for {{ hostname }}."
+		/>
+
+		<meta
+			property="og:url"
+			content="https://domaindoctor.fyi/check?host={{ hostname }}"
+		/>
+
+		<link rel="icon" href="/static/favicon.ico" sizes="any" />
+
+		<link rel="apple-touch-icon" href="/static/domain-doctor-favicon.png" />
 
 		<link rel="stylesheet" href="/static/style.css" />
 
