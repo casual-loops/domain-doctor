@@ -1,3 +1,93 @@
+(function () {
+	const analyticsHostname = "domaindoctor.fyi";
+	const analyticsWebsiteId = "15999a2d-f021-4678-9b84-51f61b9c8f7f";
+	const queuedAnalyticsEvents = [];
+
+	function sanitizeLocation(value) {
+		if (!value) {
+			return value;
+		}
+
+		try {
+			const parsed = new URL(value, window.location.origin);
+
+			if (parsed.origin === window.location.origin) {
+				return parsed.pathname;
+			}
+
+			return `${parsed.origin}${parsed.pathname}`;
+		} catch {
+			return String(value).split(/[?#]/, 1)[0];
+		}
+	}
+
+	window.domainDoctorAnalyticsBeforeSend = function (type, payload) {
+		if (!payload) {
+			return payload;
+		}
+
+		const sanitized = { ...payload };
+
+		if (sanitized.url) {
+			sanitized.url = sanitizeLocation(sanitized.url);
+		}
+
+		if (sanitized.referrer) {
+			sanitized.referrer = sanitizeLocation(sanitized.referrer);
+		}
+
+		if (window.location.pathname === "/check") {
+			sanitized.title = "Diagnostic Report | Domain Doctor";
+		}
+
+		return sanitized;
+	};
+
+	function flushQueuedAnalyticsEvents() {
+		if (!window.umami || typeof window.umami.track !== "function") {
+			return;
+		}
+
+		while (queuedAnalyticsEvents.length > 0) {
+			window.umami.track(queuedAnalyticsEvents.shift());
+		}
+	}
+
+	window.trackDomainDoctorEvent = function (eventName) {
+		if (window.location.hostname !== analyticsHostname) {
+			return;
+		}
+
+		if (window.umami && typeof window.umami.track === "function") {
+			window.umami.track(eventName);
+			return;
+		}
+
+		queuedAnalyticsEvents.push(eventName);
+	};
+
+	function loadAnalytics() {
+		if (window.location.hostname !== analyticsHostname) {
+			return;
+		}
+
+		const script = document.createElement("script");
+		script.defer = true;
+		script.src = "https://cloud.umami.is/script.js";
+		script.dataset.websiteId = analyticsWebsiteId;
+		script.dataset.domains = analyticsHostname;
+		script.dataset.excludeSearch = "true";
+		script.dataset.excludeHash = "true";
+		script.dataset.doNotTrack = "true";
+		script.dataset.beforeSend = "domainDoctorAnalyticsBeforeSend";
+		script.addEventListener("load", flushQueuedAnalyticsEvents);
+
+		document.head.appendChild(script);
+	}
+
+	loadAnalytics();
+})();
+
 document.addEventListener("DOMContentLoaded", () => {
 	const overlay = document.querySelector("[data-loading-overlay]");
 	const stage = document.querySelector("[data-loading-stage]");
@@ -24,6 +114,12 @@ document.addEventListener("DOMContentLoaded", () => {
 		: "dark";
 
 	const initialTheme = savedTheme || systemTheme;
+
+	function trackEvent(eventName) {
+		if (typeof window.trackDomainDoctorEvent === "function") {
+			window.trackDomainDoctorEvent(eventName);
+		}
+	}
 
 	function applyTheme(theme) {
 		root.dataset.theme = theme;
@@ -58,6 +154,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	forms.forEach((form) => {
 		form.addEventListener("submit", () => {
+			trackEvent("scan-started");
+
 			if (!overlay || !stage) {
 				return;
 			}
@@ -89,10 +187,36 @@ document.addEventListener("DOMContentLoaded", () => {
 		});
 	});
 
+	document.querySelectorAll("[data-analytics-event]").forEach((element) => {
+		element.addEventListener("click", () => {
+			trackEvent(element.dataset.analyticsEvent);
+		});
+	});
+
+	document
+		.querySelectorAll('a[href="https://github.com/casual-loops/domain-doctor"]')
+		.forEach((element) => {
+			element.addEventListener("click", () => {
+				trackEvent("github-click");
+			});
+		});
+
+	document.querySelectorAll('a[href="/docs"]').forEach((element) => {
+		element.addEventListener("click", () => {
+			trackEvent("api-docs-click");
+		});
+	});
+
+	if (document.querySelector(".report-heading")) {
+		trackEvent("scan-completed");
+	}
+
+	if (document.querySelector(".error-panel")) {
+		trackEvent("scan-blocked");
+	}
+
 	const filterButtons = document.querySelectorAll("[data-status-filter]");
-
 	const resultRows = document.querySelectorAll("[data-result-status]");
-
 	const resultGroups = document.querySelectorAll("[data-result-group]");
 
 	filterButtons.forEach((button) => {
@@ -103,7 +227,6 @@ document.addEventListener("DOMContentLoaded", () => {
 				const isActive = candidate === button;
 
 				candidate.classList.toggle("active", isActive);
-
 				candidate.setAttribute("aria-pressed", isActive ? "true" : "false");
 			});
 
@@ -117,9 +240,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 			resultGroups.forEach((group) => {
 				const rows = group.querySelectorAll("[data-result-status]");
-
 				const visibleRows = Array.from(rows).filter((row) => !row.hidden);
-
 				const emptyMessage = group.querySelector("[data-no-results]");
 
 				if (emptyMessage) {

@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+		<title>Privacy | Domain Doctor</title>
+		<meta
+			name="description"
+			content="Privacy information for Domain Doctor, including how limited aggregate analytics are used."
+		/>
+		<meta name="application-name" content="Domain Doctor" />
+		<meta name="theme-color" content="#0a0c0f" />
+		<meta name="color-scheme" content="dark light" />
+		<meta name="robots" content="index, follow" />
+		<link rel="canonical" href="https://domaindoctor.fyi/privacy" />
+
+		<link rel="icon" href="/static/favicon.ico" sizes="any" />
+		<link rel="apple-touch-icon" href="/static/domain-doctor-favicon.png" />
+		<link rel="stylesheet" href="/static/style.css" />
+		<link rel="stylesheet" href="/static/privacy.css" />
+		<script src="/static/app.js" defer></script>
+	</head>
+
+	<body>
+		<div class="site-shell">
+			<header class="site-header">
+				<a class="brand" href="/">
+					<span class="brand-mark">●</span>
+					DOMAIN DOCTOR
+				</a>
+
+				<nav class="site-nav" aria-label="Primary navigation">
+					<a href="/">Home</a>
+					<a href="/docs">API Docs</a>
+
+					<button
+						type="button"
+						class="theme-toggle"
+						data-theme-toggle
+						aria-label="Switch color theme"
+						title="Switch color theme"
+					>
+						<span data-theme-icon>☼</span>
+						<span data-theme-label>Light</span>
+					</button>
+				</nav>
+			</header>
+
+			<main class="privacy-main">
+				<section class="privacy-heading">
+					<p class="eyebrow">PRIVACY</p>
+					<h1>Minimal data. Useful signals.</h1>
+					<p>
+						Domain Doctor is designed to provide public web diagnostics without
+						requiring an account. Limited aggregate analytics are used to understand
+						how the service is used and where it can be improved.
+					</p>
+				</section>
+
+				<section class="privacy-section">
+					<h2>What Domain Doctor collects</h2>
+					<p>
+						Domain Doctor uses Umami Cloud for privacy-focused aggregate usage
+						analytics. This can include page views, approximate visitor counts,
+						referral sources, and limited product events such as whether a scan was
+						started, completed, or blocked.
+					</p>
+					<p>
+						Analytics are configured to honor Do Not Track and to exclude URL query
+						strings and URL fragments.
+					</p>
+				</section>
+
+				<section class="privacy-section">
+					<h2>What Domain Doctor does not intentionally collect</h2>
+					<ul>
+						<li>No Domain Doctor account or user profile is required.</li>
+						<li>Submitted hostnames are not attached to analytics events.</li>
+						<li>URL query strings containing submitted hostnames are excluded from analytics.</li>
+						<li>Scan results are not sent to analytics as event properties.</li>
+						<li>Domain Doctor does not use analytics for behavioral advertising.</li>
+						<li>Domain Doctor does not sell personal information.</li>
+					</ul>
+				</section>
+
+				<section class="privacy-section">
+					<h2>Diagnostic requests</h2>
+					<p>
+						When you submit a public hostname, Domain Doctor processes that hostname
+						to perform the requested DNS, TLS, HTTP, HTTPS, redirect, and security
+						header checks. The hostname necessarily passes through the web server as
+						part of the request.
+					</p>
+					<p>
+						Like most Internet services, infrastructure such as the reverse proxy,
+						hosting provider, or application server may create operational logs for
+						security, reliability, and troubleshooting purposes.
+					</p>
+				</section>
+
+				<section class="privacy-section">
+					<h2>Third-party analytics</h2>
+					<p>
+						Aggregate analytics are provided by Umami Cloud. Domain Doctor does not
+						enable session replay for product discovery analytics.
+					</p>
+				</section>
+
+				<section class="privacy-section">
+					<h2>Changes</h2>
+					<p>
+						This page will be updated if Domain Doctor begins collecting materially
+						different information, adds accounts, or introduces other features that
+						change how user data is handled.
+					</p>
+					<p class="privacy-updated">Last updated: September 2026</p>
+				</section>
+			</main>
+
+			<footer class="site-footer">
+				<p>Domain Doctor is an open-source outside-in diagnostic tool.</p>
+				<p>
+					<a href="/">Home</a>
+					·
+					<a href="https://github.com/casual-loops/domain-doctor">Source</a>
+					·
+					<a href="/docs">API</a>
+					·
+					<a href="/privacy" aria-current="page">Privacy</a>
+					·
+					<a
+						href="https://github.com/casual-loops/domain-doctor/issues/new?template=feedback.yml"
+						target="_blank"
+						rel="noopener noreferrer"
+						data-analytics-event="feedback-click"
+					>
+						Feedback
+					</a>
+				</p>
+			</footer>
+		</div>
+	</body>
+</html>

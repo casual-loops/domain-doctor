@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timezone
 
 from fastapi import FastAPI, HTTPException, Query
@@ -10,12 +11,30 @@ from app.checks.dns import check_dns
 from app.checks.headers import check_security_headers
 from app.checks.http import check_http, inspect_https
 from app.checks.tls import check_tls
+from app.rate_limit import SlidingWindowRateLimiter, get_client_identifier
 from app.security import TargetValidationError, validate_target
+
+
+APP_VERSION = "1.1.0"
+
+BROWSER_SCAN_RATE_LIMIT = int(os.getenv("BROWSER_SCAN_RATE_LIMIT", "60"))
+API_SCAN_RATE_LIMIT = int(os.getenv("API_SCAN_RATE_LIMIT", "30"))
+SCAN_RATE_WINDOW_SECONDS = int(os.getenv("SCAN_RATE_WINDOW_SECONDS", "60"))
+
+browser_scan_rate_limiter = SlidingWindowRateLimiter(
+    max_requests=BROWSER_SCAN_RATE_LIMIT,
+    window_seconds=SCAN_RATE_WINDOW_SECONDS,
+)
+
+api_scan_rate_limiter = SlidingWindowRateLimiter(
+    max_requests=API_SCAN_RATE_LIMIT,
+    window_seconds=SCAN_RATE_WINDOW_SECONDS,
+)
 
 
 app = FastAPI(
     title="Domain Doctor",
-    version="1.0.0",
+    version=APP_VERSION,
     description="Outside-in health checks for public domains and web services.",
 )
 
@@ -72,6 +91,31 @@ def diagnose_host(host: str):
     return hostname, results
 
 
+def enforce_scan_rate_limit(
+    request: Request,
+    limiter: SlidingWindowRateLimiter,
+    limit: int,
+):
+    client_identifier = get_client_identifier(request)
+    decision = limiter.check(client_identifier)
+
+    if not decision.allowed:
+        raise HTTPException(
+            status_code=429,
+            detail=(
+                "Too many diagnostic requests. "
+                "Please wait before running another check."
+            ),
+            headers={
+                "Retry-After": str(decision.retry_after),
+                "X-RateLimit-Limit": str(limit),
+                "X-RateLimit-Remaining": "0",
+            },
+        )
+
+    return decision
+
+
 @app.get("/", response_class=HTMLResponse)
 def root(request: Request):
     return templates.TemplateResponse(
@@ -80,11 +124,19 @@ def root(request: Request):
     )
 
 
+@app.get("/privacy", response_class=HTMLResponse)
+def privacy(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="privacy.html",
+    )
+
+
 @app.get("/health")
 def health():
     return {
         "status": "ok",
-        "version": "1.0.0",
+        "version": APP_VERSION,
     }
 
 
@@ -94,7 +146,27 @@ def check_page(
     host: str = Query(...),
 ):
     try:
+        enforce_scan_rate_limit(
+            request,
+            browser_scan_rate_limiter,
+            BROWSER_SCAN_RATE_LIMIT,
+        )
         hostname, results = diagnose_host(host)
+
+    except HTTPException as exc:
+        if exc.status_code != 429:
+            raise
+
+        return templates.TemplateResponse(
+            request=request,
+            name="report.html",
+            context={
+                "hostname": host,
+                "error": exc.detail,
+            },
+            status_code=429,
+            headers=exc.headers,
+        )
 
     except TargetValidationError as exc:
         return templates.TemplateResponse(
@@ -194,11 +266,18 @@ def check_page(
 
 @app.get("/api/check")
 def check_domain(
+    request: Request,
     host: str = Query(
         ...,
         description="Public hostname to inspect, such as example.com",
     ),
 ):
+    enforce_scan_rate_limit(
+        request,
+        api_scan_rate_limiter,
+        API_SCAN_RATE_LIMIT,
+    )
+
     try:
         hostname, results = diagnose_host(host)
 

@@ -28,6 +28,14 @@ def test_homepage():
     assert "Know what the internet sees." in response.text
 
 
+def test_privacy_page():
+    response = client.get("/privacy")
+
+    assert response.status_code == 200
+    assert "Minimal data. Useful signals." in response.text
+    assert "Umami Cloud" in response.text
+
+
 def test_health_endpoint():
     response = client.get("/health")
 
