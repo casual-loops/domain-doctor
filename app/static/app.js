@@ -25,6 +25,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	const initialTheme = savedTheme || systemTheme;
 
+	function trackEvent(eventName) {
+		if (typeof window.trackDomainDoctorEvent === "function") {
+			window.trackDomainDoctorEvent(eventName);
+		}
+	}
+
 	function applyTheme(theme) {
 		root.dataset.theme = theme;
 
@@ -58,6 +64,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	forms.forEach((form) => {
 		form.addEventListener("submit", () => {
+			trackEvent("scan-started");
+
 			if (!overlay || !stage) {
 				return;
 			}
@@ -88,6 +96,20 @@ document.addEventListener("DOMContentLoaded", () => {
 			hostnameInput.focus();
 		});
 	});
+
+	document.querySelectorAll("[data-analytics-event]").forEach((element) => {
+		element.addEventListener("click", () => {
+			trackEvent(element.dataset.analyticsEvent);
+		});
+	});
+
+	if (document.body.dataset.scanOutcome === "completed") {
+		trackEvent("scan-completed");
+	}
+
+	if (document.body.dataset.scanOutcome === "blocked") {
+		trackEvent("scan-blocked");
+	}
 
 	const filterButtons = document.querySelectorAll("[data-status-filter]");
 
