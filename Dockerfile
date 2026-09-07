@@ -11,6 +11,8 @@ RUN addgroup --system app \
 
 COPY requirements.txt .
 
+COPY LICENSE ./LICENSE
+
 RUN python -m pip install --upgrade pip \
     && python -m pip install -r requirements.txt
 
