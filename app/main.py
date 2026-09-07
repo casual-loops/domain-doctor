@@ -15,6 +15,8 @@ from app.rate_limit import SlidingWindowRateLimiter, get_client_identifier
 from app.security import TargetValidationError, validate_target
 
 
+APP_VERSION = "1.1.0"
+
 BROWSER_SCAN_RATE_LIMIT = int(os.getenv("BROWSER_SCAN_RATE_LIMIT", "60"))
 API_SCAN_RATE_LIMIT = int(os.getenv("API_SCAN_RATE_LIMIT", "30"))
 SCAN_RATE_WINDOW_SECONDS = int(os.getenv("SCAN_RATE_WINDOW_SECONDS", "60"))
@@ -32,7 +34,7 @@ api_scan_rate_limiter = SlidingWindowRateLimiter(
 
 app = FastAPI(
     title="Domain Doctor",
-    version="1.0.0",
+    version=APP_VERSION,
     description="Outside-in health checks for public domains and web services.",
 )
 
@@ -134,7 +136,7 @@ def privacy(request: Request):
 def health():
     return {
         "status": "ok",
-        "version": "1.0.0",
+        "version": APP_VERSION,
     }
 
 
