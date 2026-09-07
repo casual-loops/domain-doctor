@@ -102,6 +102,20 @@ connect-src 'self' https://cloud.umami.is https://gateway.umami.is;
 
 Keep the rest of the existing Content Security Policy intact. Do not replace the policy with a permissive wildcard solely to enable analytics.
 
+### Swagger UI exception
+
+FastAPI serves Swagger UI at `/docs`. Swagger initializes with an inline script, so the stricter site-wide CSP will leave `/docs` blank unless that route receives a narrower exception.
+
+Keep the global application CSP unchanged and apply the exception only to the documentation route:
+
+```caddy
+@docs path /docs /docs/*
+
+header @docs >Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net; img-src 'self' data: https://fastapi.tiangolo.com; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"
+```
+
+This permits the inline Swagger initialization script only for `/docs` while preserving the stricter policy on the rest of Domain Doctor.
+
 Before applying a Caddy configuration change, validate it:
 
 ```bash
@@ -127,6 +141,7 @@ After deployment, verify all of the following:
 7. Browser developer tools show the Umami script loading from `cloud.umami.is`.
 8. Analytics requests to `gateway.umami.is/api/send` are not blocked by Content Security Policy.
 9. Umami receives a production visit.
+10. `/docs` renders the FastAPI Swagger UI successfully.
 
 ## Rollback
 
