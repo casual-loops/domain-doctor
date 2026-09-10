@@ -616,28 +616,15 @@ a {
 .redirect-traces {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 1rem;
+	gap: 1.25rem;
 }
 
 .redirect-trace {
-	min-width: 0;
-	padding: 1rem;
-
-	border: 1px solid var(--border);
-	border-radius: 8px;
-
-	background: var(--surface-raised);
+	padding: 1.25rem;
 }
 
 .redirect-trace-label {
-	margin: 0 0 1rem;
-
-	color: var(--subtle);
-
-	font-family: monospace;
-	font-size: 0.7rem;
-	font-weight: 700;
-	letter-spacing: 0.1em;
+	margin-bottom: 1.25rem;
 }
 
 .redirect-hop {
@@ -645,33 +632,17 @@ a {
 }
 
 .redirect-hop-main {
-	display: grid;
-	grid-template-columns: auto minmax(0, 1fr) auto;
-	align-items: center;
-	gap: 0.8rem;
-}
-
-.redirect-status {
-	min-width: 2.5rem;
-	padding: 0.3rem 0.45rem;
-
-	border: 1px solid var(--border);
-	border-radius: 6px;
-
-	color: var(--cyan);
-
-	font-family: monospace;
-	font-size: 0.75rem;
-	font-weight: 800;
-	text-align: center;
+	gap: 1rem;
+	padding: 0.15rem 0;
 }
 
 .redirect-hop-copy {
-	min-width: 0;
+	gap: 0.3rem;
+}
 
-	display: flex;
-	flex-direction: column;
-	gap: 0.2rem;
+.redirect-status {
+	min-width: 2.75rem;
+	padding: 0.35rem 0.5rem;
 }
 
 .redirect-url {
@@ -681,6 +652,10 @@ a {
 
 	font-family: monospace;
 	font-size: 0.82rem;
+}
+
+.redirect-final {
+	margin-left: 0.5rem;
 }
 
 .redirect-reason {
@@ -703,13 +678,59 @@ a {
 	letter-spacing: 0.08em;
 }
 
+.redirect-transition {
+	margin: 0.8rem 0 0.8rem 0.15rem;
+
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.55rem;
+
+	min-height: 1.6rem;
+}
+
 .redirect-arrow {
-	margin: 0.35rem 0 0.35rem 1.25rem;
+	flex: 0 0 3rem;
 
 	color: var(--subtle);
 
 	font-family: monospace;
-	font-size: 1rem;
+	font-size: 1.05rem;
+	text-align: center;
+}
+
+.redirect-change {
+	padding: 0.25rem 0.55rem;
+
+	border-radius: 999px;
+
+	font-size: 0.6rem;
+	letter-spacing: 0.07em;
+}
+
+.redirect-change.upgrade {
+	border-color: rgba(125, 211, 252, 0.35);
+
+	background: rgba(125, 211, 252, 0.07);
+	color: var(--cyan);
+}
+
+.redirect-change.hostname {
+	border-color: rgba(95, 141, 211, 0.4);
+
+	background: rgba(95, 141, 211, 0.08);
+	color: var(--blue-hover);
+}
+
+.redirect-change.downgrade {
+	border-color: rgba(210, 153, 34, 0.45);
+
+	background: rgba(210, 153, 34, 0.08);
+	color: var(--warn);
+}
+
+.redirect-change.scheme {
+	color: var(--muted);
 }
 
 .redirect-empty,
