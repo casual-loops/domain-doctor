@@ -1,6 +1,7 @@
 from fastapi.testclient import TestClient
 
 import app.main as main
+from app.checks.http import HttpTrace
 from app.models import CheckResult
 from app.security import TargetValidationError
 
@@ -18,6 +19,15 @@ def fake_results():
             detail="example.com resolved successfully.",
         )
     ]
+
+
+def fake_diagnosis_with_traces(host):
+    return (
+        "example.com",
+        fake_results(),
+        HttpTrace(responses=[]),
+        HttpTrace(responses=[]),
+    )
 
 
 def test_homepage():
@@ -65,11 +75,8 @@ def test_api_check(monkeypatch):
 def test_report_page(monkeypatch):
     monkeypatch.setattr(
         main,
-        "diagnose_host",
-        lambda host: (
-            "example.com",
-            fake_results(),
-        ),
+        "diagnose_host_with_traces",
+        fake_diagnosis_with_traces,
     )
 
     response = client.get(
@@ -90,7 +97,7 @@ def test_blocked_report(monkeypatch):
 
     monkeypatch.setattr(
         main,
-        "diagnose_host",
+        "diagnose_host_with_traces",
         blocked,
     )
 

@@ -1,6 +1,7 @@
 from fastapi.testclient import TestClient
 
 import app.main as main
+from app.checks.http import HttpTrace
 from app.models import CheckResult
 from app.rate_limit import SlidingWindowRateLimiter
 
@@ -20,8 +21,18 @@ def fake_results():
     ]
 
 
+def fake_diagnosis_with_traces(host):
+    return (
+        "example.com",
+        fake_results(),
+        HttpTrace(responses=[]),
+        HttpTrace(responses=[]),
+    )
+
+
 def test_sliding_window_blocks_after_limit():
     now = [100.0]
+
     limiter = SlidingWindowRateLimiter(
         max_requests=2,
         window_seconds=60,
@@ -42,6 +53,7 @@ def test_sliding_window_blocks_after_limit():
 
 def test_sliding_window_recovers_after_window():
     now = [100.0]
+
     limiter = SlidingWindowRateLimiter(
         max_requests=1,
         window_seconds=60,
@@ -62,8 +74,18 @@ def test_api_check_returns_429_when_rate_limited(monkeypatch):
         window_seconds=60,
     )
 
-    monkeypatch.setattr(main, "api_scan_rate_limiter", limiter)
-    monkeypatch.setattr(main, "API_SCAN_RATE_LIMIT", 1)
+    monkeypatch.setattr(
+        main,
+        "api_scan_rate_limiter",
+        limiter,
+    )
+
+    monkeypatch.setattr(
+        main,
+        "API_SCAN_RATE_LIMIT",
+        1,
+    )
+
     monkeypatch.setattr(
         main,
         "diagnose_host",
@@ -77,6 +99,7 @@ def test_api_check_returns_429_when_rate_limited(monkeypatch):
         "/api/check",
         params={"host": "example.com"},
     )
+
     blocked = client.get(
         "/api/check",
         params={"host": "example.com"},
@@ -86,7 +109,9 @@ def test_api_check_returns_429_when_rate_limited(monkeypatch):
     assert blocked.status_code == 429
     assert blocked.headers["retry-after"]
     assert blocked.headers["x-ratelimit-limit"] == "1"
-    assert blocked.json()["detail"].startswith("Too many diagnostic requests")
+    assert blocked.json()["detail"].startswith(
+        "Too many diagnostic requests"
+    )
 
 
 def test_report_returns_429_page_when_rate_limited(monkeypatch):
@@ -95,21 +120,29 @@ def test_report_returns_429_page_when_rate_limited(monkeypatch):
         window_seconds=60,
     )
 
-    monkeypatch.setattr(main, "browser_scan_rate_limiter", limiter)
-    monkeypatch.setattr(main, "BROWSER_SCAN_RATE_LIMIT", 1)
     monkeypatch.setattr(
         main,
-        "diagnose_host",
-        lambda host: (
-            "example.com",
-            fake_results(),
-        ),
+        "browser_scan_rate_limiter",
+        limiter,
+    )
+
+    monkeypatch.setattr(
+        main,
+        "BROWSER_SCAN_RATE_LIMIT",
+        1,
+    )
+
+    monkeypatch.setattr(
+        main,
+        "diagnose_host_with_traces",
+        fake_diagnosis_with_traces,
     )
 
     first = client.get(
         "/check",
         params={"host": "example.com"},
     )
+
     blocked = client.get(
         "/check",
         params={"host": "example.com"},
@@ -127,15 +160,36 @@ def test_browser_and_api_limits_use_separate_buckets(monkeypatch):
         max_requests=1,
         window_seconds=60,
     )
+
     browser_limiter = SlidingWindowRateLimiter(
         max_requests=1,
         window_seconds=60,
     )
 
-    monkeypatch.setattr(main, "api_scan_rate_limiter", api_limiter)
-    monkeypatch.setattr(main, "browser_scan_rate_limiter", browser_limiter)
-    monkeypatch.setattr(main, "API_SCAN_RATE_LIMIT", 1)
-    monkeypatch.setattr(main, "BROWSER_SCAN_RATE_LIMIT", 1)
+    monkeypatch.setattr(
+        main,
+        "api_scan_rate_limiter",
+        api_limiter,
+    )
+
+    monkeypatch.setattr(
+        main,
+        "browser_scan_rate_limiter",
+        browser_limiter,
+    )
+
+    monkeypatch.setattr(
+        main,
+        "API_SCAN_RATE_LIMIT",
+        1,
+    )
+
+    monkeypatch.setattr(
+        main,
+        "BROWSER_SCAN_RATE_LIMIT",
+        1,
+    )
+
     monkeypatch.setattr(
         main,
         "diagnose_host",
@@ -145,14 +199,22 @@ def test_browser_and_api_limits_use_separate_buckets(monkeypatch):
         ),
     )
 
+    monkeypatch.setattr(
+        main,
+        "diagnose_host_with_traces",
+        fake_diagnosis_with_traces,
+    )
+
     api_first = client.get(
         "/api/check",
         params={"host": "example.com"},
     )
+
     api_blocked = client.get(
         "/api/check",
         params={"host": "example.com"},
     )
+
     browser_first = client.get(
         "/check",
         params={"host": "example.com"},

@@ -249,4 +249,137 @@ document.addEventListener("DOMContentLoaded", () => {
 			});
 		});
 	});
+
+	document.querySelectorAll("[data-collapsible]").forEach((panel) => {
+		const toggle = panel.querySelector("[data-collapsible-toggle]");
+		const content = panel.querySelector("[data-collapsible-content]");
+		const icon = panel.querySelector(".redirect-toggle");
+
+		if (!toggle || !content) {
+			return;
+		}
+
+		toggle.addEventListener("click", () => {
+			const isExpanded = toggle.getAttribute("aria-expanded") === "true";
+
+			if (isExpanded) {
+				content.style.height = `${content.scrollHeight}px`;
+
+				requestAnimationFrame(() => {
+					content.style.height = "0px";
+					content.style.opacity = "0";
+				});
+
+				panel.classList.add("is-collapsed");
+				toggle.setAttribute("aria-expanded", "false");
+
+				if (icon) {
+					icon.textContent = "+";
+				}
+
+				return;
+			}
+
+			panel.classList.remove("is-collapsed");
+			content.style.height = `${content.scrollHeight}px`;
+			content.style.opacity = "1";
+			toggle.setAttribute("aria-expanded", "true");
+
+			if (icon) {
+				icon.textContent = "−";
+			}
+
+			content.addEventListener(
+				"transitionend",
+				() => {
+					content.style.height = "auto";
+				},
+				{ once: true },
+			);
+		});
+	});
+
+	const reducedMotion = window.matchMedia(
+		"(prefers-reduced-motion: reduce)",
+	).matches;
+
+	document.querySelectorAll(".result-details").forEach((details) => {
+		const summary = details.querySelector("summary");
+
+		if (!summary) {
+			return;
+		}
+
+		let isAnimating = false;
+
+		summary.addEventListener("click", (event) => {
+			if (reducedMotion) {
+				return;
+			}
+
+			event.preventDefault();
+
+			if (isAnimating) {
+				return;
+			}
+
+			isAnimating = true;
+
+			if (details.open) {
+				const startHeight = details.offsetHeight;
+				const endHeight = summary.offsetHeight;
+
+				details.classList.add("is-closing");
+				details.style.height = `${startHeight}px`;
+
+				requestAnimationFrame(() => {
+					details.style.height = `${endHeight}px`;
+				});
+
+				details.addEventListener(
+					"transitionend",
+					(event) => {
+						if (event.propertyName !== "height") {
+							return;
+						}
+
+						details.open = false;
+						details.classList.remove("is-closing");
+						details.style.height = "";
+						isAnimating = false;
+					},
+					{ once: true },
+				);
+
+				return;
+			}
+
+			const startHeight = details.offsetHeight;
+
+			details.open = true;
+
+			const endHeight = details.offsetHeight;
+
+			details.classList.add("is-opening");
+			details.style.height = `${startHeight}px`;
+
+			requestAnimationFrame(() => {
+				details.style.height = `${endHeight}px`;
+			});
+
+			details.addEventListener(
+				"transitionend",
+				(event) => {
+					if (event.propertyName !== "height") {
+						return;
+					}
+
+					details.classList.remove("is-opening");
+					details.style.height = "";
+					isAnimating = false;
+				},
+				{ once: true },
+			);
+		});
+	});
 });

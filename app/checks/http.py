@@ -277,6 +277,15 @@ def _trace_detail(trace: HttpTrace) -> str:
 
     return detail
 
+
+def inspect_http(hostname: str) -> HttpTrace:
+    """Return the validated HTTP redirect trace for a hostname."""
+
+    return _follow_redirects(
+        f"http://{hostname}/"
+    )
+
+
 def inspect_https(hostname: str) -> HttpTrace:
     """Return the validated HTTPS redirect trace for a hostname."""
 
@@ -284,9 +293,11 @@ def inspect_https(hostname: str) -> HttpTrace:
         f"https://{hostname}/"
     )
 
+
 def check_http(
     hostname: str,
     addresses: list[str],
+    http_trace: HttpTrace | None = None,
     https_trace: HttpTrace | None = None,
 ) -> list[CheckResult]:
     """
@@ -301,9 +312,8 @@ def check_http(
 
     results = []
 
-    http_trace = _follow_redirects(
-        f"http://{hostname}/"
-    )
+    if http_trace is None:
+        http_trace = inspect_http(hostname)
 
     if http_trace.responses:
         first_http = http_trace.responses[0]

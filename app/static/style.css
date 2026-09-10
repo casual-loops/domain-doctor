@@ -575,6 +575,173 @@ a {
 	font-weight: 700;
 }
 
+.redirect-panel {
+	margin: 1rem 0 1.5rem;
+	padding: 1.25rem;
+
+	border: 1px solid var(--border);
+	border-radius: 10px;
+
+	background: var(--surface);
+}
+
+.redirect-panel-header .eyebrow {
+	margin-bottom: 0.4rem;
+}
+
+.redirect-panel-header h3 {
+	margin: 0;
+
+	font-size: 1rem;
+	font-weight: 700;
+}
+
+.redirect-toggle {
+	flex: 0 0 auto;
+
+	width: 1.5rem;
+	height: 1.5rem;
+
+	display: grid;
+	place-items: center;
+
+	color: var(--cyan);
+
+	font-family: monospace;
+	font-size: 1.6rem;
+	font-weight: 700;
+	line-height: 1;
+}
+
+.redirect-traces {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 1rem;
+}
+
+.redirect-trace {
+	min-width: 0;
+	padding: 1rem;
+
+	border: 1px solid var(--border);
+	border-radius: 8px;
+
+	background: var(--surface-raised);
+}
+
+.redirect-trace-label {
+	margin: 0 0 1rem;
+
+	color: var(--subtle);
+
+	font-family: monospace;
+	font-size: 0.7rem;
+	font-weight: 700;
+	letter-spacing: 0.1em;
+}
+
+.redirect-hop {
+	min-width: 0;
+}
+
+.redirect-hop-main {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr) auto;
+	align-items: center;
+	gap: 0.8rem;
+}
+
+.redirect-status {
+	min-width: 2.5rem;
+	padding: 0.3rem 0.45rem;
+
+	border: 1px solid var(--border);
+	border-radius: 6px;
+
+	color: var(--cyan);
+
+	font-family: monospace;
+	font-size: 0.75rem;
+	font-weight: 800;
+	text-align: center;
+}
+
+.redirect-hop-copy {
+	min-width: 0;
+
+	display: flex;
+	flex-direction: column;
+	gap: 0.2rem;
+}
+
+.redirect-url {
+	overflow-wrap: anywhere;
+
+	color: var(--text);
+
+	font-family: monospace;
+	font-size: 0.82rem;
+}
+
+.redirect-reason {
+	color: var(--muted);
+
+	font-size: 0.75rem;
+}
+
+.redirect-final {
+	padding: 0.25rem 0.4rem;
+
+	border: 1px solid var(--pass);
+	border-radius: 5px;
+
+	color: var(--pass);
+
+	font-family: monospace;
+	font-size: 0.62rem;
+	font-weight: 800;
+	letter-spacing: 0.08em;
+}
+
+.redirect-arrow {
+	margin: 0.35rem 0 0.35rem 1.25rem;
+
+	color: var(--subtle);
+
+	font-family: monospace;
+	font-size: 1rem;
+}
+
+.redirect-empty,
+.redirect-error {
+	margin: 0;
+
+	color: var(--muted);
+
+	font-size: 0.82rem;
+	line-height: 1.5;
+}
+
+.redirect-error {
+	margin-top: 0.8rem;
+	color: var(--fail);
+}
+
+@media (max-width: 720px) {
+	.redirect-traces {
+		grid-template-columns: 1fr;
+	}
+
+	.redirect-hop-main {
+		grid-template-columns: auto minmax(0, 1fr);
+	}
+
+	.redirect-final {
+		grid-column: 2;
+		justify-self: start;
+	}
+}
+
 .result-list {
 	display: grid;
 }
@@ -640,6 +807,45 @@ a {
 
 .result-details {
 	margin: 0.65rem 0 0 2.4rem;
+
+	overflow: hidden;
+
+	transition: height 220ms ease;
+}
+
+.result-detail {
+	transition:
+		opacity 160ms ease,
+		transform 180ms ease;
+}
+
+.result-details.is-opening .result-detail {
+	animation: detail-reveal 180ms ease both;
+}
+
+.result-details.is-closing .result-detail {
+	opacity: 0;
+	transform: translateY(-4px);
+}
+
+@keyframes detail-reveal {
+	from {
+		opacity: 0;
+		transform: translateY(-4px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.result-details,
+	.result-detail {
+		transition: none;
+		animation: none;
+	}
 }
 
 .result-details summary {
@@ -1049,4 +1255,87 @@ html {
 .theme-toggle:hover {
 	border-color: var(--blue);
 	color: var(--text);
+}
+
+.redirect-panel-header {
+	width: 100%;
+	margin: 0;
+	padding: 0;
+
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+
+	border: 0;
+
+	background: transparent;
+	color: inherit;
+
+	cursor: pointer;
+	text-align: left;
+}
+
+.redirect-panel-header .eyebrow {
+	margin-bottom: 0.4rem;
+}
+
+.redirect-panel-header h3 {
+	margin: 0;
+
+	font-size: 1rem;
+	font-weight: 700;
+}
+
+.redirect-toggle {
+	flex: 0 0 auto;
+
+	width: 1.5rem;
+	height: 1.5rem;
+
+	display: grid;
+	place-items: center;
+
+	color: var(--cyan);
+
+	font-family: monospace;
+	font-size: 1.6rem;
+	font-weight: 700;
+	line-height: 1;
+}
+
+.redirect-collapse {
+	height: auto;
+	overflow: hidden;
+
+	transition:
+		height 220ms ease,
+		opacity 180ms ease;
+
+	opacity: 1;
+}
+
+.redirect-collapse-inner {
+	padding-top: 1.25rem;
+}
+
+.redirect-panel.is-collapsed .redirect-collapse {
+	opacity: 0;
+}
+
+.redirect-panel-title {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+}
+
+.redirect-panel-title .eyebrow {
+	margin: 0 0 0.4rem;
+}
+
+.redirect-heading {
+	color: var(--text);
+
+	font-size: 1rem;
+	font-weight: 700;
 }
