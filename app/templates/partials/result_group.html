@@ -1,5 +1,5 @@
 <section
-	class="result-group"
+	class="result-group{% if category == 'HTTP' %} result-group-http{% endif %}"
 	id="{{ category | lower }}"
 	data-result-group
 >
@@ -15,11 +15,24 @@
 		</div>
 	</header>
 
-	<div class="result-list">
-		{% if category == "HTTP" %}
-			{% include "partials/redirect_panel.html" %}
-		{% endif %}
+	{% if category == "HTTP" %}
+	<div class="http-result-layout">
+		<div class="result-list http-result-checks">
+			{% for result in results %}
+				{% include "partials/result_row.html" %}
+			{% endfor %}
 
+			<p class="no-results" data-no-results hidden>
+				No results in this section match the selected status.
+			</p>
+		</div>
+
+		<aside class="http-redirect-aside" aria-label="HTTP redirect chain">
+			{% include "partials/redirect_panel.html" %}
+		</aside>
+	</div>
+	{% else %}
+	<div class="result-list">
 		{% for result in results %}
 			{% include "partials/result_row.html" %}
 		{% endfor %}
@@ -28,6 +41,7 @@
 			No results in this section match the selected status.
 		</p>
 	</div>
+	{% endif %}
 
 	<div class="section-footer">
 		<a href="#report-top" class="back-to-top">↑ Back to top</a>
