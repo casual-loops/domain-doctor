@@ -1,9 +1,84 @@
-.redirect-panel {
-	padding: 1.5rem;
+.redirect-result {
+	border-bottom: 1px solid rgba(48, 54, 61, 0.7);
 }
 
-.redirect-collapse-inner {
-	padding-top: 1.5rem;
+.redirect-result-toggle {
+	width: 100%;
+	padding: 1rem 0;
+
+	display: grid;
+	grid-template-columns: 1.5rem minmax(0, 1fr) auto;
+	align-items: center;
+	gap: 0.9rem;
+
+	border: 0;
+	background: transparent;
+	color: inherit;
+
+	cursor: pointer;
+	text-align: left;
+}
+
+.redirect-result-toggle:hover .redirect-result-title,
+.redirect-result-toggle:hover .redirect-result-action {
+	color: var(--cyan);
+}
+
+.redirect-result-icon {
+	width: 1.5rem;
+	height: 1.5rem;
+
+	display: grid;
+	place-items: center;
+
+	color: var(--blue);
+
+	font-family: monospace;
+	font-size: 1rem;
+	font-weight: 800;
+}
+
+.redirect-result-copy {
+	min-width: 0;
+
+	display: flex;
+	flex-direction: column;
+	gap: 0.3rem;
+}
+
+.redirect-result-title {
+	font-size: 0.95rem;
+	font-weight: 650;
+}
+
+.redirect-result-summary {
+	color: var(--muted);
+
+	font-size: 0.88rem;
+	line-height: 1.5;
+}
+
+.redirect-result-action {
+	color: var(--blue);
+
+	font-family: monospace;
+	font-size: 0.74rem;
+	white-space: nowrap;
+}
+
+.redirect-collapse {
+	height: auto;
+	overflow: hidden;
+
+	transition:
+		height 220ms ease,
+		opacity 180ms ease;
+
+	opacity: 1;
+}
+
+.redirect-result-body {
+	padding: 0 0 1.25rem 2.4rem;
 }
 
 .redirect-view {
@@ -27,7 +102,7 @@
 
 .redirect-entry-switch {
 	width: fit-content;
-	margin-bottom: 1.35rem;
+	margin-bottom: 1rem;
 	padding: 0.25rem;
 
 	display: grid;
@@ -40,7 +115,7 @@
 }
 
 .redirect-entry-option {
-	padding: 0.55rem 0.9rem;
+	padding: 0.5rem 0.85rem;
 
 	border-radius: 6px;
 
@@ -88,7 +163,7 @@
 .redirect-timeline {
 	display: none;
 	min-width: 0;
-	padding: 1.35rem 1.5rem;
+	padding: 1.25rem 1.4rem;
 
 	border: 1px solid var(--border);
 	border-radius: 9px;
@@ -120,7 +195,6 @@
 
 .redirect-status {
 	width: 3rem;
-	min-width: 0;
 	padding: 0.35rem 0.45rem;
 
 	display: inline-grid;
@@ -165,7 +239,6 @@
 }
 
 .redirect-final {
-	margin: 0;
 	padding: 0.28rem 0.5rem;
 
 	border: 1px solid var(--pass);
@@ -183,7 +256,7 @@
 	min-height: 3.2rem;
 
 	display: grid;
-	grid-template-columns: 4.25rem minmax(0, 1fr) auto;
+	grid-template-columns: 4.25rem minmax(0, 1fr);
 	align-items: center;
 	gap: 1rem;
 }
@@ -285,9 +358,23 @@
 	color: var(--fail);
 }
 
+@media (prefers-reduced-motion: reduce) {
+	.redirect-collapse {
+		transition: none;
+	}
+}
+
 @media (max-width: 620px) {
-	.redirect-panel {
-		padding: 1rem;
+	.redirect-result-toggle {
+		grid-template-columns: 1.5rem minmax(0, 1fr);
+	}
+
+	.redirect-result-action {
+		grid-column: 2;
+	}
+
+	.redirect-result-body {
+		padding-left: 0;
 	}
 
 	.redirect-entry-switch {
