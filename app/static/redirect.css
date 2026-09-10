@@ -1,0 +1,321 @@
+.redirect-panel {
+	padding: 1.5rem;
+}
+
+.redirect-collapse-inner {
+	padding-top: 1.5rem;
+}
+
+.redirect-view {
+	min-width: 0;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.redirect-view-input {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+.redirect-entry-switch {
+	width: fit-content;
+	margin-bottom: 1.35rem;
+	padding: 0.25rem;
+
+	display: grid;
+	grid-template-columns: repeat(2, minmax(120px, 1fr));
+
+	border: 1px solid var(--border);
+	border-radius: 9px;
+
+	background: var(--background);
+}
+
+.redirect-entry-option {
+	padding: 0.55rem 0.9rem;
+
+	border-radius: 6px;
+
+	color: var(--subtle);
+
+	cursor: pointer;
+
+	font-family: monospace;
+	font-size: 0.68rem;
+	font-weight: 800;
+	letter-spacing: 0.08em;
+	text-align: center;
+
+	transition:
+		background 140ms ease,
+		color 140ms ease,
+		box-shadow 140ms ease;
+}
+
+#redirect-http-view:checked
+	~ .redirect-entry-switch
+	label[for="redirect-http-view"],
+#redirect-https-view:checked
+	~ .redirect-entry-switch
+	label[for="redirect-https-view"] {
+	background: var(--surface-raised);
+	color: var(--cyan);
+	box-shadow: inset 0 0 0 1px rgba(125, 211, 252, 0.22);
+}
+
+#redirect-http-view:focus-visible
+	~ .redirect-entry-switch
+	label[for="redirect-http-view"],
+#redirect-https-view:focus-visible
+	~ .redirect-entry-switch
+	label[for="redirect-https-view"] {
+	outline: 2px solid var(--blue);
+	outline-offset: 2px;
+}
+
+.redirect-view-panels {
+	min-width: 0;
+}
+
+.redirect-timeline {
+	display: none;
+	min-width: 0;
+	padding: 1.35rem 1.5rem;
+
+	border: 1px solid var(--border);
+	border-radius: 9px;
+
+	background: var(--surface-raised);
+}
+
+#redirect-http-view:checked
+	~ .redirect-view-panels
+	.redirect-timeline-http,
+#redirect-https-view:checked
+	~ .redirect-view-panels
+	.redirect-timeline-https {
+	display: block;
+}
+
+.redirect-hop {
+	min-width: 0;
+}
+
+.redirect-hop-main {
+	min-height: 3.5rem;
+
+	display: grid;
+	grid-template-columns: 4.25rem minmax(0, 1fr) auto;
+	align-items: center;
+	gap: 1rem;
+}
+
+.redirect-status {
+	width: 3rem;
+	min-width: 0;
+	padding: 0.35rem 0.45rem;
+
+	display: inline-grid;
+	place-items: center;
+	justify-self: center;
+
+	border: 1px solid var(--border);
+	border-radius: 7px;
+
+	background: var(--surface);
+	color: var(--cyan);
+
+	font-family: monospace;
+	font-size: 0.76rem;
+	font-weight: 800;
+}
+
+.redirect-hop-copy {
+	min-width: 0;
+
+	display: flex;
+	flex-direction: column;
+	gap: 0.28rem;
+}
+
+.redirect-url {
+	overflow-wrap: anywhere;
+
+	color: var(--text);
+
+	font-family: monospace;
+	font-size: 0.9rem;
+	font-weight: 700;
+	line-height: 1.4;
+}
+
+.redirect-reason {
+	color: var(--muted);
+
+	font-size: 0.78rem;
+	line-height: 1.4;
+}
+
+.redirect-final {
+	margin: 0;
+	padding: 0.28rem 0.5rem;
+
+	border: 1px solid var(--pass);
+	border-radius: 5px;
+
+	color: var(--pass);
+
+	font-family: monospace;
+	font-size: 0.62rem;
+	font-weight: 800;
+	letter-spacing: 0.08em;
+}
+
+.redirect-transition {
+	min-height: 3.2rem;
+
+	display: grid;
+	grid-template-columns: 4.25rem minmax(0, 1fr) auto;
+	align-items: center;
+	gap: 1rem;
+}
+
+.redirect-rail {
+	position: relative;
+	align-self: stretch;
+}
+
+.redirect-rail::before {
+	content: "";
+
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 50%;
+
+	width: 1px;
+
+	background: var(--border);
+}
+
+.redirect-rail::after {
+	content: "↓";
+
+	position: absolute;
+	top: 50%;
+	left: 50%;
+
+	padding: 0.15rem 0;
+
+	transform: translate(-50%, -50%);
+
+	background: var(--surface-raised);
+	color: var(--subtle);
+
+	font-family: monospace;
+	font-size: 1rem;
+}
+
+.redirect-changes {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+
+.redirect-change {
+	padding: 0.24rem 0.52rem;
+
+	border: 1px solid var(--border);
+	border-radius: 999px;
+
+	background: var(--surface);
+	color: var(--muted);
+
+	font-family: monospace;
+	font-size: 0.59rem;
+	font-weight: 800;
+	letter-spacing: 0.07em;
+	line-height: 1.2;
+}
+
+.redirect-change.upgrade {
+	border-color: rgba(125, 211, 252, 0.35);
+	background: rgba(125, 211, 252, 0.07);
+	color: var(--cyan);
+}
+
+.redirect-change.hostname {
+	border-color: rgba(95, 141, 211, 0.4);
+	background: rgba(95, 141, 211, 0.08);
+	color: var(--blue-hover);
+}
+
+.redirect-change.downgrade {
+	border-color: rgba(210, 153, 34, 0.45);
+	background: rgba(210, 153, 34, 0.08);
+	color: var(--warn);
+}
+
+.redirect-change.scheme {
+	color: var(--muted);
+}
+
+.redirect-empty,
+.redirect-error {
+	margin: 0;
+	padding: 0.35rem 0;
+
+	color: var(--muted);
+
+	font-size: 0.82rem;
+	line-height: 1.5;
+}
+
+.redirect-error {
+	margin-top: 0.8rem;
+	color: var(--fail);
+}
+
+@media (max-width: 620px) {
+	.redirect-panel {
+		padding: 1rem;
+	}
+
+	.redirect-entry-switch {
+		width: 100%;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.redirect-timeline {
+		padding: 1rem;
+	}
+
+	.redirect-hop-main {
+		grid-template-columns: 3.5rem minmax(0, 1fr);
+		gap: 0.75rem;
+	}
+
+	.redirect-status {
+		width: 2.6rem;
+	}
+
+	.redirect-final {
+		grid-column: 2;
+		justify-self: start;
+		margin-top: 0.25rem;
+	}
+
+	.redirect-transition {
+		grid-template-columns: 3.5rem minmax(0, 1fr);
+		gap: 0.75rem;
+	}
+}
