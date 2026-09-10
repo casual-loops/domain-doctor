@@ -1,16 +1,16 @@
-{% macro render_trace(label, trace) %}
+{% macro render_trace(label, trace, hops) %}
 <div class="redirect-trace">
 	<p class="redirect-trace-label">{{ label }}</p>
 
-	{% if trace.responses %}
-		{% for response in trace.responses %}
+	{% if hops %}
+		{% for hop in hops %}
 		<div class="redirect-hop">
 			<div class="redirect-hop-main">
-				<span class="redirect-status">{{ response.status }}</span>
+				<span class="redirect-status">{{ hop.response.status }}</span>
 
 				<div class="redirect-hop-copy">
-					<span class="redirect-url">{{ response.url }}</span>
-					<span class="redirect-reason">{{ response.reason }}</span>
+					<span class="redirect-url">{{ hop.response.url }}</span>
+					<span class="redirect-reason">{{ hop.response.reason }}</span>
 				</div>
 
 				{% if loop.last %}
@@ -19,7 +19,12 @@
 			</div>
 
 			{% if not loop.last %}
-			<div class="redirect-arrow">↓</div>
+			<div class="redirect-transition">
+				<span class="redirect-arrow">↓</span>
+				{% for change in hop.changes %}
+				<span class="redirect-change {{ change.kind }}">{{ change.label }}</span>
+				{% endfor %}
+			</div>
 			{% endif %}
 		</div>
 		{% endfor %}
@@ -53,8 +58,8 @@
 	<div class="redirect-collapse" data-collapsible-content>
 		<div class="redirect-collapse-inner">
 			<div class="redirect-traces">
-				{{ render_trace("HTTP ENTRY", http_trace) }}
-				{{ render_trace("HTTPS ENTRY", https_trace) }}
+				{{ render_trace("HTTP ENTRY", http_trace, http_redirect_hops) }}
+				{{ render_trace("HTTPS ENTRY", https_trace, https_redirect_hops) }}
 			</div>
 		</div>
 	</div>
