@@ -38,7 +38,21 @@ def fake_diagnosis_with_visible_redirects(host):
             status="pass",
             summary="HTTP responded with status 301.",
             detail="Connected successfully.",
-        )
+        ),
+        CheckResult(
+            name="HTTP to HTTPS redirect",
+            category="HTTP",
+            status="pass",
+            summary="HTTP redirects to HTTPS.",
+            detail="301 http://example.com/ -> 200 https://example.com/",
+        ),
+        CheckResult(
+            name="HTTPS response",
+            category="HTTP",
+            status="pass",
+            summary="HTTPS returned status 200.",
+            detail="200 https://example.com/",
+        ),
     ]
 
     http_trace = HttpTrace(
@@ -156,8 +170,10 @@ def test_report_renders_redirect_chain(monkeypatch):
     )
 
     assert response.status_code == 200
-    assert "REDIRECT CHAIN" in response.text
-    assert "Observed request paths" in response.text
+    assert "Redirect chain" in response.text
+    assert "View chain" in response.text
+    assert "HTTP ENTRY" in response.text
+    assert "HTTPS ENTRY" in response.text
     assert "http://example.com/" in response.text
     assert "https://example.com/" in response.text
     assert "Moved Permanently" in response.text
