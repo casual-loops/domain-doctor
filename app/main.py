@@ -11,6 +11,7 @@ from app.checks.dns import check_dns
 from app.checks.headers import check_security_headers
 from app.checks.http import check_http, inspect_http, inspect_https
 from app.checks.tls import check_tls
+from app.presentation import build_redirect_hops
 from app.rate_limit import SlidingWindowRateLimiter, get_client_identifier
 from app.security import TargetValidationError, validate_target
 
@@ -273,6 +274,8 @@ def check_page(
             "checked_at": checked_at,
             "http_trace": http_trace,
             "https_trace": https_trace,
+            "http_redirect_hops": build_redirect_hops(http_trace),
+            "https_redirect_hops": build_redirect_hops(https_trace),
             "error": None,
         },
     )
