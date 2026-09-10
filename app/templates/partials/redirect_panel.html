@@ -1,7 +1,5 @@
-{% macro render_trace(label, trace, hops) %}
-<div class="redirect-trace">
-	<p class="redirect-trace-label">{{ label }}</p>
-
+{% macro render_timeline(trace, hops, modifier) %}
+<div class="redirect-timeline redirect-timeline-{{ modifier }}">
 	{% if hops %}
 		{% for hop in hops %}
 		<div class="redirect-hop">
@@ -20,18 +18,19 @@
 
 			{% if not loop.last %}
 			<div class="redirect-transition">
-				<span class="redirect-arrow">↓</span>
-				{% for change in hop.changes %}
-				<span class="redirect-change {{ change.kind }}">{{ change.label }}</span>
-				{% endfor %}
+				<span class="redirect-rail" aria-hidden="true"></span>
+
+				<div class="redirect-changes">
+					{% for change in hop.changes %}
+					<span class="redirect-change {{ change.kind }}">{{ change.label }}</span>
+					{% endfor %}
+				</div>
 			</div>
 			{% endif %}
 		</div>
 		{% endfor %}
 	{% else %}
-		<p class="redirect-empty">
-			No {{ label | lower | replace(" entry", "") }} response was received.
-		</p>
+		<p class="redirect-empty">No {{ modifier | upper }} response was received.</p>
 	{% endif %}
 
 	{% if trace.error %}
@@ -57,10 +56,34 @@
 
 	<div class="redirect-collapse" data-collapsible-content>
 		<div class="redirect-collapse-inner">
-			<div class="redirect-traces">
-				{{ render_trace("HTTP ENTRY", http_trace, http_redirect_hops) }}
-				{{ render_trace("HTTPS ENTRY", https_trace, https_redirect_hops) }}
-			</div>
+			<fieldset class="redirect-view">
+				<legend class="sr-only">Redirect entry path</legend>
+
+				<input
+					type="radio"
+					name="redirect-entry-view"
+					id="redirect-http-view"
+					class="redirect-view-input"
+					checked
+				/>
+
+				<input
+					type="radio"
+					name="redirect-entry-view"
+					id="redirect-https-view"
+					class="redirect-view-input"
+				/>
+
+				<div class="redirect-entry-switch" aria-label="Redirect entry path">
+					<label for="redirect-http-view" class="redirect-entry-option">HTTP ENTRY</label>
+					<label for="redirect-https-view" class="redirect-entry-option">HTTPS ENTRY</label>
+				</div>
+
+				<div class="redirect-view-panels">
+					{{ render_timeline(http_trace, http_redirect_hops, "http") }}
+					{{ render_timeline(https_trace, https_redirect_hops, "https") }}
+				</div>
+			</fieldset>
 		</div>
 	</div>
 </section>
