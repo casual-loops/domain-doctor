@@ -19,7 +19,7 @@
 		{% for result in results %}
 			{% include "partials/result_row.html" %}
 
-			{% if category == "HTTP" and result.name == "HTTP to HTTPS redirect" %}
+			{% if category == "HTTP" and result.name == "HTTPS response" %}
 				{% include "partials/redirect_panel.html" %}
 			{% endif %}
 		{% endfor %}
