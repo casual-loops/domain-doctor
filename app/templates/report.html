@@ -21,6 +21,10 @@
 <meta property="og:url" content="https://domaindoctor.fyi/check?host={{ hostname }}" />
 {% endblock %}
 
+{% block styles %}
+<link rel="stylesheet" href="/static/report.css" />
+{% endblock %}
+
 {% block main %}
 <main class="report-main" id="report-top">
 	<form action="/check" method="get" class="report-form" data-diagnostic-form>
