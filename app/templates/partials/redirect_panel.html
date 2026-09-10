@@ -1,0 +1,61 @@
+{% macro render_trace(label, trace) %}
+<div class="redirect-trace">
+	<p class="redirect-trace-label">{{ label }}</p>
+
+	{% if trace.responses %}
+		{% for response in trace.responses %}
+		<div class="redirect-hop">
+			<div class="redirect-hop-main">
+				<span class="redirect-status">{{ response.status }}</span>
+
+				<div class="redirect-hop-copy">
+					<span class="redirect-url">{{ response.url }}</span>
+					<span class="redirect-reason">{{ response.reason }}</span>
+				</div>
+
+				{% if loop.last %}
+				<span class="redirect-final">FINAL</span>
+				{% endif %}
+			</div>
+
+			{% if not loop.last %}
+			<div class="redirect-arrow">↓</div>
+			{% endif %}
+		</div>
+		{% endfor %}
+	{% else %}
+		<p class="redirect-empty">
+			No {{ label | lower | replace(" entry", "") }} response was received.
+		</p>
+	{% endif %}
+
+	{% if trace.error %}
+	<p class="redirect-error">{{ trace.error }}</p>
+	{% endif %}
+</div>
+{% endmacro %}
+
+<section class="redirect-panel" data-collapsible>
+	<button
+		type="button"
+		class="redirect-panel-header"
+		aria-expanded="true"
+		data-collapsible-toggle
+	>
+		<span class="redirect-panel-title">
+			<span class="eyebrow">REDIRECT CHAIN</span>
+			<span class="redirect-heading">Observed request paths</span>
+		</span>
+
+		<span class="redirect-toggle" aria-hidden="true">−</span>
+	</button>
+
+	<div class="redirect-collapse" data-collapsible-content>
+		<div class="redirect-collapse-inner">
+			<div class="redirect-traces">
+				{{ render_trace("HTTP ENTRY", http_trace) }}
+				{{ render_trace("HTTPS ENTRY", https_trace) }}
+			</div>
+		</div>
+	</div>
+</section>

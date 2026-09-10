@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+		<title>{% block title %}Domain Doctor{% endblock %}</title>
+
+		<meta name="application-name" content="Domain Doctor" />
+		<meta name="theme-color" content="#0a0c0f" />
+		<meta name="color-scheme" content="dark light" />
+
+		{% block head_meta %}{% endblock %}
+
+		<link rel="icon" href="/static/favicon.ico" sizes="any" />
+		<link rel="apple-touch-icon" href="/static/domain-doctor-favicon.png" />
+		<link rel="stylesheet" href="/static/style.css" />
+		{% block styles %}{% endblock %}
+		<script src="/static/app.js" defer></script>
+	</head>
+
+	<body>
+		<div class="site-shell">
+			{% include "partials/site_header.html" %}
+			{% block main %}{% endblock %}
+			{% include "partials/site_footer.html" %}
+		</div>
+
+		{% block overlays %}{% endblock %}
+	</body>
+</html>

@@ -1,0 +1,32 @@
+<section class="report-controls">
+	<div class="control-group">
+		<span class="control-label">JUMP TO</span>
+		<div class="control-buttons">
+			<a class="control-button" href="#dns">DNS</a>
+			<a class="control-button" href="#tls">TLS</a>
+			<a class="control-button" href="#http">HTTP</a>
+			<a class="control-button" href="#security">Security</a>
+		</div>
+	</div>
+
+	<div class="control-group">
+		<span class="control-label">FILTER STATUS</span>
+		<div
+			class="control-buttons"
+			aria-label="Filter diagnostic results by status"
+		>
+			<button type="button" class="filter-button active" data-status-filter="all" aria-pressed="true">
+				All <span>{{ counts.pass + counts.warn + counts.fail }}</span>
+			</button>
+			<button type="button" class="filter-button" data-status-filter="pass" aria-pressed="false">
+				Pass <span>{{ counts.pass }}</span>
+			</button>
+			<button type="button" class="filter-button" data-status-filter="warn" aria-pressed="false">
+				Warn <span>{{ counts.warn }}</span>
+			</button>
+			<button type="button" class="filter-button" data-status-filter="fail" aria-pressed="false">
+				Fail <span>{{ counts.fail }}</span>
+			</button>
+		</div>
+	</div>
+</section>

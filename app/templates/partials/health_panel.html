@@ -1,0 +1,23 @@
+<section class="health-panel {{ overall_class }}">
+	<div class="health-heading">
+		<span class="health-dot"></span>
+		<span>{{ overall_status }}</span>
+	</div>
+
+	<p class="health-summary">{{ overall_summary }}</p>
+
+	<div class="scoreboard">
+		<div class="score">
+			<span class="score-value pass-text">{{ counts.pass }}</span>
+			<span class="score-label">PASS</span>
+		</div>
+		<div class="score">
+			<span class="score-value warn-text">{{ counts.warn }}</span>
+			<span class="score-label">WARN</span>
+		</div>
+		<div class="score">
+			<span class="score-value fail-text">{{ counts.fail }}</span>
+			<span class="score-label">FAIL</span>
+		</div>
+	</div>
+</section>

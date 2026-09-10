@@ -1,0 +1,35 @@
+<section
+	class="result-group"
+	id="{{ category | lower }}"
+	data-result-group
+>
+	<header class="group-header">
+		<h2>{{ category }}</h2>
+
+		<div class="group-counts">
+			{% for status, count in category_counts[category].items() %}
+				{% if count %}
+				<span class="{{ status }}-text">{{ count }} {{ status | upper }}</span>
+				{% endif %}
+			{% endfor %}
+		</div>
+	</header>
+
+	<div class="result-list">
+		{% if category == "HTTP" %}
+			{% include "partials/redirect_panel.html" %}
+		{% endif %}
+
+		{% for result in results %}
+			{% include "partials/result_row.html" %}
+		{% endfor %}
+
+		<p class="no-results" data-no-results hidden>
+			No results in this section match the selected status.
+		</p>
+	</div>
+
+	<div class="section-footer">
+		<a href="#report-top" class="back-to-top">↑ Back to top</a>
+	</div>
+</section>

@@ -1,383 +1,72 @@
-<!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
+{% extends "base.html" %}
+{% set active_page = "report" %}
 
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+{% block title %}{{ hostname }} Diagnostic Report | Domain Doctor{% endblock %}
 
-		<title>{{ hostname }} Diagnostic Report | Domain Doctor</title>
+{% block head_meta %}
+<meta
+	name="description"
+	content="Domain Doctor diagnostic results for {{ hostname }}, including DNS, TLS, HTTPS, redirects, and security headers."
+/>
+<meta name="robots" content="noindex, follow" />
+<link rel="canonical" href="https://domaindoctor.fyi/" />
 
-		<meta
-			name="description"
-			content="Domain Doctor diagnostic results for {{ hostname }}, including DNS, TLS, HTTPS, redirects, and security headers."
-		/>
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Domain Doctor" />
+<meta property="og:title" content="{{ hostname }} Diagnostic Report | Domain Doctor" />
+<meta
+	property="og:description"
+	content="DNS, TLS, HTTPS, redirect, and security diagnostics for {{ hostname }}."
+/>
+<meta property="og:url" content="https://domaindoctor.fyi/check?host={{ hostname }}" />
+{% endblock %}
 
-		<meta name="application-name" content="Domain Doctor" />
-		<meta name="theme-color" content="#0a0c0f" />
-		<meta name="color-scheme" content="dark light" />
-		<meta name="robots" content="noindex, follow" />
-
-		<link rel="canonical" href="https://domaindoctor.fyi/" />
-
-		<meta property="og:type" content="website" />
-		<meta property="og:site_name" content="Domain Doctor" />
-		<meta
-			property="og:title"
-			content="{{ hostname }} Diagnostic Report | Domain Doctor"
-		/>
-		<meta
-			property="og:description"
-			content="DNS, TLS, HTTPS, redirect, and security diagnostics for {{ hostname }}."
-		/>
-		<meta
-			property="og:url"
-			content="https://domaindoctor.fyi/check?host={{ hostname }}"
-		/>
-
-		<link rel="icon" href="/static/favicon.ico" sizes="any" />
-		<link rel="apple-touch-icon" href="/static/domain-doctor-favicon.png" />
-		<link rel="stylesheet" href="/static/style.css" />
-		<script src="/static/app.js" defer></script>
-	</head>
-
-	<body>
-		<div class="site-shell">
-			<header class="site-header">
-				<a class="brand" href="/">
-					<span class="brand-mark">●</span>
-					DOMAIN DOCTOR
-				</a>
-
-				<nav class="site-nav" aria-label="Primary navigation">
-					<a
-						href="https://github.com/casual-loops/domain-doctor"
-						target="_blank"
-						rel="noopener noreferrer"
-						>GitHub</a
-					>
-					<a href="/docs"> API Docs </a>
-					<button
-						type="button"
-						class="theme-toggle"
-						data-theme-toggle
-						aria-label="Switch color theme"
-						title="Switch color theme"
-					>
-						<span data-theme-icon>☼</span>
-						<span data-theme-label>Light</span>
-					</button>
-				</nav>
-			</header>
-
-			<main class="report-main" id="report-top">
-				<form
-					action="/check"
-					method="get"
-					class="report-form"
-					data-diagnostic-form
-				>
-					<div class="input-shell">
-						<span class="input-prompt">›</span>
-						<input
-							name="host"
-							type="text"
-							value="{{ hostname }}"
-							autocomplete="off"
-							autocapitalize="none"
-							spellcheck="false"
-							required
-						/>
-					</div>
-					<button type="submit">Run Again</button>
-				</form>
-
-				{% if error %}
-				<section class="error-panel">
-					<p class="eyebrow fail-text">CHECK BLOCKED</p>
-					<h1>{{ hostname }}</h1>
-					<p class="error-copy">{{ error }}</p>
-					<a class="text-link" href="/"> Check another hostname </a>
-				</section>
-				{% else %}
-				<section class="report-heading">
-					<div>
-						<p class="eyebrow">DIAGNOSTIC REPORT</p>
-						<h1>{{ hostname }}</h1>
-						<p class="scan-meta">
-							Checked {{ checked_at }} · Public hostname · Ports 80 / 443
-						</p>
-					</div>
-				</section>
-
-				<section class="health-panel {{ overall_class }}">
-					<div class="health-heading">
-						<span class="health-dot"></span>
-						<span>{{ overall_status }}</span>
-					</div>
-					<p class="health-summary">{{ overall_summary }}</p>
-					<div class="scoreboard">
-						<div class="score">
-							<span class="score-value pass-text">{{ counts.pass }}</span
-							><span class="score-label">PASS</span>
-						</div>
-						<div class="score">
-							<span class="score-value warn-text">{{ counts.warn }}</span
-							><span class="score-label">WARN</span>
-						</div>
-						<div class="score">
-							<span class="score-value fail-text">{{ counts.fail }}</span
-							><span class="score-label">FAIL</span>
-						</div>
-					</div>
-				</section>
-
-				<section class="report-controls">
-					<div class="control-group">
-						<span class="control-label"> JUMP TO </span>
-						<div class="control-buttons">
-							<a class="control-button" href="#dns"> DNS </a>
-							<a class="control-button" href="#tls"> TLS </a>
-							<a class="control-button" href="#http"> HTTP </a>
-							<a class="control-button" href="#security"> Security </a>
-						</div>
-					</div>
-					<div class="control-group">
-						<span class="control-label"> FILTER STATUS </span>
-						<div
-							class="control-buttons"
-							aria-label="Filter diagnostic results by status"
-						>
-							<button
-								type="button"
-								class="filter-button active"
-								data-status-filter="all"
-								aria-pressed="true"
-							>
-								All <span>{{ counts.pass + counts.warn + counts.fail }}</span>
-							</button>
-							<button
-								type="button"
-								class="filter-button"
-								data-status-filter="pass"
-								aria-pressed="false"
-							>
-								Pass <span>{{ counts.pass }}</span>
-							</button>
-							<button
-								type="button"
-								class="filter-button"
-								data-status-filter="warn"
-								aria-pressed="false"
-							>
-								Warn <span>{{ counts.warn }}</span>
-							</button>
-							<button
-								type="button"
-								class="filter-button"
-								data-status-filter="fail"
-								aria-pressed="false"
-							>
-								Fail <span>{{ counts.fail }}</span>
-							</button>
-						</div>
-					</div>
-				</section>
-
-				<section class="result-groups">
-					{% for category, results in grouped_results.items() %}
-					<section
-						class="result-group"
-						id="{{ category | lower }}"
-						data-result-group
-					>
-						<header class="group-header">
-							<h2>{{ category }}</h2>
-							<div class="group-counts">
-								{% for status, count in category_counts[category].items() %}{%
-								if count %}
-								<span class="{{ status }}-text"
-									>{{ count }} {{ status | upper }}</span
-								>
-								{% endif %}{% endfor %}
-							</div>
-						</header>
-						<div class="result-list">
-							{% if category == "HTTP" %}
-							<section class="redirect-panel" data-collapsible>
-								<button
-									type="button"
-									class="redirect-panel-header"
-									aria-expanded="true"
-									data-collapsible-toggle
-								>
-									<span class="redirect-panel-title">
-										<span class="eyebrow">REDIRECT CHAIN</span>
-										<span class="redirect-heading">Observed request paths</span>
-									</span>
-
-									<span class="redirect-toggle" aria-hidden="true">−</span>
-								</button>
-
-								<div class="redirect-collapse" data-collapsible-content>
-									<div class="redirect-collapse-inner">
-										<div class="redirect-traces">
-											<div class="redirect-trace">
-												<p class="redirect-trace-label">HTTP ENTRY</p>
-
-												{% if http_trace.responses %} {% for response in
-												http_trace.responses %}
-												<div class="redirect-hop">
-													<div class="redirect-hop-main">
-														<span class="redirect-status">
-															{{ response.status }}
-														</span>
-
-														<div class="redirect-hop-copy">
-															<span class="redirect-url">
-																{{ response.url }}
-															</span>
-
-															<span class="redirect-reason">
-																{{ response.reason }}
-															</span>
-														</div>
-
-														{% if loop.last %}
-														<span class="redirect-final"> FINAL </span>
-														{% endif %}
-													</div>
-
-													{% if not loop.last %}
-													<div class="redirect-arrow">↓</div>
-													{% endif %}
-												</div>
-												{% endfor %} {% else %}
-												<p class="redirect-empty">
-													No HTTP response was received.
-												</p>
-												{% endif %} {% if http_trace.error %}
-												<p class="redirect-error">{{ http_trace.error }}</p>
-												{% endif %}
-											</div>
-
-											<div class="redirect-trace">
-												<p class="redirect-trace-label">HTTPS ENTRY</p>
-
-												{% if https_trace.responses %} {% for response in
-												https_trace.responses %}
-												<div class="redirect-hop">
-													<div class="redirect-hop-main">
-														<span class="redirect-status">
-															{{ response.status }}
-														</span>
-
-														<div class="redirect-hop-copy">
-															<span class="redirect-url">
-																{{ response.url }}
-															</span>
-
-															<span class="redirect-reason">
-																{{ response.reason }}
-															</span>
-														</div>
-
-														{% if loop.last %}
-														<span class="redirect-final"> FINAL </span>
-														{% endif %}
-													</div>
-
-													{% if not loop.last %}
-													<div class="redirect-arrow">↓</div>
-													{% endif %}
-												</div>
-												{% endfor %} {% else %}
-												<p class="redirect-empty">
-													No HTTPS response was received.
-												</p>
-												{% endif %} {% if https_trace.error %}
-												<p class="redirect-error">{{ https_trace.error }}</p>
-												{% endif %}
-											</div>
-										</div>
-									</div>
-								</div>
-							</section>
-							{% endif %} {% for result in results %}
-							<article
-								class="result-row {{ result.status }}"
-								data-result-status="{{ result.status }}"
-							>
-								<div class="result-main">
-									<span class="status-icon"
-										>{% if result.status == "pass" %} ✓ {% elif result.status ==
-										"warn" %} ! {% else %} × {% endif %}</span
-									>
-									<div class="result-copy">
-										<h3>{{ result.name }}</h3>
-										<p>{{ result.summary }}</p>
-									</div>
-								</div>
-								{% if result.detail %}
-								<details class="result-details">
-									<summary>Details</summary>
-									<div class="result-detail">{{ result.detail }}</div>
-								</details>
-								{% endif %}
-							</article>
-							{% endfor %}
-							<p class="no-results" data-no-results hidden>
-								No results in this section match the selected status.
-							</p>
-						</div>
-						<div class="section-footer">
-							<a href="#report-top" class="back-to-top"> ↑ Back to top </a>
-						</div>
-					</section>
-					{% endfor %}
-				</section>
-				{% endif %}
-			</main>
-
-			<footer class="site-footer">
-				<p>Domain Doctor is an open-source outside-in diagnostic tool.</p>
-				<p>
-					Built by
-					<a
-						href="https://github.com/casual-loops"
-						target="_blank"
-						rel="noopener noreferrer"
-						>casual-loops</a
-					>
-					·
-					<a
-						href="https://github.com/casual-loops/domain-doctor"
-						target="_blank"
-						rel="noopener noreferrer"
-						>Source</a
-					>
-					· <a href="/docs"> API </a> · <a href="/privacy"> Privacy </a> ·
-					<a
-						href="https://github.com/casual-loops/domain-doctor/issues/new?template=feedback.yml"
-						target="_blank"
-						rel="noopener noreferrer"
-						data-analytics-event="feedback-click"
-						>Feedback</a
-					>
-				</p>
-			</footer>
+{% block main %}
+<main class="report-main" id="report-top">
+	<form action="/check" method="get" class="report-form" data-diagnostic-form>
+		<div class="input-shell">
+			<span class="input-prompt">›</span>
+			<input
+				name="host"
+				type="text"
+				value="{{ hostname }}"
+				autocomplete="off"
+				autocapitalize="none"
+				spellcheck="false"
+				required
+			/>
 		</div>
+		<button type="submit">Run Again</button>
+	</form>
 
-		<div
-			class="loading-overlay"
-			data-loading-overlay
-			aria-live="polite"
-			aria-hidden="true"
-		>
-			<div class="loading-panel">
-				<div class="scanner-ring"></div>
-				<p class="loading-label">RUNNING DIAGNOSTICS</p>
-				<p class="loading-stage" data-loading-stage>Preparing scan...</p>
-			</div>
+	{% if error %}
+	<section class="error-panel">
+		<p class="eyebrow fail-text">CHECK BLOCKED</p>
+		<h1>{{ hostname }}</h1>
+		<p class="error-copy">{{ error }}</p>
+		<a class="text-link" href="/">Check another hostname</a>
+	</section>
+	{% else %}
+	<section class="report-heading">
+		<div>
+			<p class="eyebrow">DIAGNOSTIC REPORT</p>
+			<h1>{{ hostname }}</h1>
+			<p class="scan-meta">Checked {{ checked_at }} · Public hostname · Ports 80 / 443</p>
 		</div>
-	</body>
-</html>
+	</section>
+
+	{% include "partials/health_panel.html" %}
+	{% include "partials/report_controls.html" %}
+
+	<section class="result-groups">
+		{% for category, results in grouped_results.items() %}
+			{% include "partials/result_group.html" %}
+		{% endfor %}
+	</section>
+	{% endif %}
+</main>
+{% endblock %}
+
+{% block overlays %}
+	{% include "partials/loading_overlay.html" %}
+{% endblock %}
