@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 
 import app.main as main
-from app.checks.http import HttpTrace
+from app.checks.http import HttpTrace, ResponseSnapshot
 from app.models import CheckResult
 from app.security import TargetValidationError
 
@@ -27,6 +27,58 @@ def fake_diagnosis_with_traces(host):
         fake_results(),
         HttpTrace(responses=[]),
         HttpTrace(responses=[]),
+    )
+
+
+def fake_diagnosis_with_visible_redirects(host):
+    results = fake_results() + [
+        CheckResult(
+            name="HTTP reachability",
+            category="HTTP",
+            status="pass",
+            summary="HTTP responded with status 301.",
+            detail="Connected successfully.",
+        )
+    ]
+
+    http_trace = HttpTrace(
+        responses=[
+            ResponseSnapshot(
+                url="http://example.com/",
+                address="93.184.216.34",
+                status=301,
+                reason="Moved Permanently",
+                headers={
+                    "location": "https://example.com/"
+                },
+            ),
+            ResponseSnapshot(
+                url="https://example.com/",
+                address="93.184.216.34",
+                status=200,
+                reason="OK",
+                headers={},
+            ),
+        ]
+    )
+
+    https_trace = HttpTrace(
+        responses=[
+            ResponseSnapshot(
+                url="https://example.com/",
+                address="93.184.216.34",
+                status=200,
+                reason="OK",
+                headers={},
+            )
+        ]
+    )
+
+    return (
+        "example.com",
+        results,
+        http_trace,
+        https_trace,
     )
 
 
@@ -70,6 +122,8 @@ def test_api_check(monkeypatch):
 
     assert response.status_code == 200
     assert response.json()["hostname"] == "example.com"
+    assert "http_trace" not in response.json()
+    assert "https_trace" not in response.json()
 
 
 def test_report_page(monkeypatch):
@@ -87,6 +141,27 @@ def test_report_page(monkeypatch):
     assert response.status_code == 200
     assert "DIAGNOSTIC REPORT" in response.text
     assert "HEALTHY" in response.text
+
+
+def test_report_renders_redirect_chain(monkeypatch):
+    monkeypatch.setattr(
+        main,
+        "diagnose_host_with_traces",
+        fake_diagnosis_with_visible_redirects,
+    )
+
+    response = client.get(
+        "/check",
+        params={"host": "example.com"},
+    )
+
+    assert response.status_code == 200
+    assert "REDIRECT CHAIN" in response.text
+    assert "Observed request paths" in response.text
+    assert "http://example.com/" in response.text
+    assert "https://example.com/" in response.text
+    assert "Moved Permanently" in response.text
+    assert "FINAL" in response.text
 
 
 def test_blocked_report(monkeypatch):
