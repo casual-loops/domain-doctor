@@ -254,6 +254,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		const toggle = panel.querySelector("[data-collapsible-toggle]");
 		const content = panel.querySelector("[data-collapsible-content]");
 		const icon = panel.querySelector(".redirect-toggle");
+		const action = panel.querySelector(".redirect-result-action");
 
 		if (!toggle || !content) {
 			return;
@@ -277,6 +278,10 @@ document.addEventListener("DOMContentLoaded", () => {
 					icon.textContent = "+";
 				}
 
+				if (action) {
+					action.textContent = "View chain";
+				}
+
 				return;
 			}
 
@@ -287,6 +292,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 			if (icon) {
 				icon.textContent = "−";
+			}
+
+			if (action) {
+				action.textContent = "Hide chain";
 			}
 
 			content.addEventListener(
