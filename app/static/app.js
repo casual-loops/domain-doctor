@@ -124,12 +124,20 @@ document.addEventListener("DOMContentLoaded", () => {
 	function applyTheme(theme) {
 		root.dataset.theme = theme;
 
+		const nextTheme = theme === "dark" ? "light" : "dark";
+		const nextThemeLabel = `Switch to ${nextTheme} theme`;
+
 		if (themeIcon) {
 			themeIcon.textContent = theme === "dark" ? "☼" : "☾";
 		}
 
 		if (themeLabel) {
 			themeLabel.textContent = theme === "dark" ? "Light" : "Dark";
+		}
+
+		if (themeToggle) {
+			themeToggle.setAttribute("aria-label", nextThemeLabel);
+			themeToggle.setAttribute("title", nextThemeLabel);
 		}
 
 		if (themeColorMeta) {
@@ -155,6 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	forms.forEach((form) => {
 		form.addEventListener("submit", () => {
 			trackEvent("scan-started");
+			form.setAttribute("aria-busy", "true");
 
 			if (!overlay || !stage) {
 				return;
@@ -260,6 +269,10 @@ document.addEventListener("DOMContentLoaded", () => {
 			return;
 		}
 
+		if (toggle.getAttribute("aria-expanded") === "false") {
+			content.hidden = true;
+		}
+
 		toggle.addEventListener("click", () => {
 			const isExpanded = toggle.getAttribute("aria-expanded") === "true";
 
@@ -282,12 +295,31 @@ document.addEventListener("DOMContentLoaded", () => {
 					action.textContent = "View chain";
 				}
 
+				content.addEventListener(
+					"transitionend",
+					(event) => {
+						if (event.propertyName !== "height") {
+							return;
+						}
+
+						content.hidden = true;
+					},
+					{ once: true },
+				);
+
 				return;
 			}
 
+			content.hidden = false;
 			panel.classList.remove("is-collapsed");
-			content.style.height = `${content.scrollHeight}px`;
-			content.style.opacity = "1";
+			content.style.height = "0px";
+			content.style.opacity = "0";
+
+			requestAnimationFrame(() => {
+				content.style.height = `${content.scrollHeight}px`;
+				content.style.opacity = "1";
+			});
+
 			toggle.setAttribute("aria-expanded", "true");
 
 			if (icon) {
@@ -300,7 +332,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
 			content.addEventListener(
 				"transitionend",
-				() => {
+				(event) => {
+					if (event.propertyName !== "height") {
+						return;
+					}
+
 					content.style.height = "auto";
 				},
 				{ once: true },
