@@ -295,17 +295,16 @@ document.addEventListener("DOMContentLoaded", () => {
 					action.textContent = "View chain";
 				}
 
-				content.addEventListener(
-					"transitionend",
-					(event) => {
-						if (event.propertyName !== "height") {
-							return;
-						}
+				const finishCollapse = (event) => {
+					if (event.propertyName !== "height") {
+						return;
+					}
 
-						content.hidden = true;
-					},
-					{ once: true },
-				);
+					content.hidden = true;
+					content.removeEventListener("transitionend", finishCollapse);
+				};
+
+				content.addEventListener("transitionend", finishCollapse);
 
 				return;
 			}
@@ -330,17 +329,16 @@ document.addEventListener("DOMContentLoaded", () => {
 				action.textContent = "Hide chain";
 			}
 
-			content.addEventListener(
-				"transitionend",
-				(event) => {
-					if (event.propertyName !== "height") {
-						return;
-					}
+			const finishExpand = (event) => {
+				if (event.propertyName !== "height") {
+					return;
+				}
 
-					content.style.height = "auto";
-				},
-				{ once: true },
-			);
+				content.style.height = "auto";
+				content.removeEventListener("transitionend", finishExpand);
+			};
+
+			content.addEventListener("transitionend", finishExpand);
 		});
 	});
 
