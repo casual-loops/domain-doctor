@@ -117,6 +117,7 @@ def test_health_endpoint():
 
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
+    assert response.json()["version"] == "1.2.0"
 
 
 def test_api_check(monkeypatch):
