@@ -1,12 +1,12 @@
-<section class="health-panel {{ overall_class }}">
+<section class="health-panel {{ overall_class }}" aria-label="Overall diagnostic health">
 	<div class="health-heading">
-		<span class="health-dot"></span>
+		<span class="health-dot" aria-hidden="true"></span>
 		<span>{{ overall_status }}</span>
 	</div>
 
 	<p class="health-summary">{{ overall_summary }}</p>
 
-	<div class="scoreboard">
+	<div class="scoreboard" aria-label="Diagnostic result counts">
 		<div class="score">
 			<span class="score-value pass-text">{{ counts.pass }}</span>
 			<span class="score-label">PASS</span>
