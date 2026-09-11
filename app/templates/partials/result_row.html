@@ -15,7 +15,7 @@
 
 	{% if result.detail %}
 	<details class="result-details">
-		<summary>Details</summary>
+		<summary>Details<span class="sr-only"> for {{ result.name }}</span></summary>
 		<div class="result-detail">{{ result.detail }}</div>
 	</details>
 	{% endif %}
