@@ -29,9 +29,11 @@
 {% block main %}
 <main class="report-main" id="report-top">
 	<form action="/check" method="get" class="report-form" data-diagnostic-form>
+		<label for="report-host" class="sr-only">Public hostname</label>
 		<div class="input-shell">
-			<span class="input-prompt">›</span>
+			<span class="input-prompt" aria-hidden="true">›</span>
 			<input
+				id="report-host"
 				name="host"
 				type="text"
 				value="{{ hostname }}"
@@ -63,7 +65,7 @@
 	{% include "partials/health_panel.html" %}
 	{% include "partials/report_controls.html" %}
 
-	<section class="result-groups">
+	<section class="result-groups" aria-label="Diagnostic results">
 		{% for category, results in grouped_results.items() %}
 			{% include "partials/result_group.html" %}
 		{% endfor %}
