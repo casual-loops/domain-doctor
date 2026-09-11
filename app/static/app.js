@@ -309,6 +309,7 @@ document.addEventListener("DOMContentLoaded", () => {
 				return;
 			}
 
+			trackEvent("redirect-chain-opened");
 			content.hidden = false;
 			panel.classList.remove("is-collapsed");
 			content.style.height = "0px";
