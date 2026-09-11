@@ -21,7 +21,7 @@ Domain Doctor is also free to use as a teaching and learning tool for networking
 | --- | --- |
 | DNS | Resolution, IPv4 records, IPv6 records |
 | TLS | TLS connectivity, certificate validity, expiration, hostname coverage, certificate verification |
-| HTTP | HTTP reachability, HTTP to HTTPS redirects, final HTTPS response |
+| HTTP | HTTP reachability, HTTP to HTTPS redirects, final HTTPS response, structured redirect-chain visibility |
 | Security | HSTS, Content Security Policy, X-Content-Type-Options, Referrer Policy |
 
 Every diagnostic returns one of three states:
@@ -34,7 +34,7 @@ Every diagnostic returns one of three states:
 
 ## Interface
 
-Domain Doctor includes a responsive browser interface with light and dark themes, report navigation, status filtering, expandable technical details, and an overall diagnostic verdict.
+Domain Doctor includes a responsive browser interface with light and dark themes, report navigation, status filtering, expandable technical details, an overall diagnostic verdict, and a dedicated redirect-chain timeline for HTTP behavior.
 
 ### Landing page
 
@@ -236,11 +236,11 @@ Production consumes the container image published by GitHub Actions rather than 
 
 ## Current scope
 
-Domain Doctor v1 focuses on public web service diagnostics.
+Domain Doctor v1.2 focuses on public web service diagnostics with improved HTTP redirect-chain visibility.
 
 It does not currently provide continuous monitoring, historical uptime, account management, email DNS analysis, or multi-resolver DNS comparison.
 
-Those capabilities may be considered for future releases rather than expanding the initial release scope.
+Those capabilities may be considered for future releases rather than expanding the current release scope.
 
 ## License
 
