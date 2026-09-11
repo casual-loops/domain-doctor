@@ -44,6 +44,7 @@
 		type="button"
 		class="redirect-result-toggle"
 		aria-expanded="false"
+		aria-controls="redirect-chain-content"
 		data-collapsible-toggle
 	>
 		<span class="redirect-result-icon" aria-hidden="true">↳</span>
@@ -56,10 +57,10 @@
 				{% endif %}
 			</span>
 		</span>
-		<span class="redirect-result-action" aria-hidden="true">View chain</span>
+		<span class="redirect-result-action">View chain</span>
 	</button>
 
-	<div class="redirect-collapse" data-collapsible-content style="height: 0px; opacity: 0;">
+	<div id="redirect-chain-content" class="redirect-collapse" data-collapsible-content style="height: 0px; opacity: 0;">
 		<div class="redirect-result-body">
 			<fieldset class="redirect-view">
 				<legend class="sr-only">Redirect entry path</legend>
