@@ -1,12 +1,13 @@
 <section
 	class="result-group"
 	id="{{ category | lower }}"
+	aria-labelledby="{{ category | lower }}-heading"
 	data-result-group
 >
 	<header class="group-header">
-		<h2>{{ category }}</h2>
+		<h2 id="{{ category | lower }}-heading">{{ category }}</h2>
 
-		<div class="group-counts">
+		<div class="group-counts" aria-label="{{ category }} result counts">
 			{% for status, count in category_counts[category].items() %}
 				{% if count %}
 				<span class="{{ status }}-text">{{ count }} {{ status | upper }}</span>
