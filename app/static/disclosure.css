@@ -1,0 +1,26 @@
+.redirect-collapse {
+	display: grid;
+	grid-template-rows: 0fr;
+	opacity: 0;
+	overflow: hidden;
+
+	transition:
+		grid-template-rows 220ms ease,
+		opacity 180ms ease;
+}
+
+.redirect-collapse > .redirect-result-body {
+	min-height: 0;
+	overflow: hidden;
+}
+
+.redirect-result.is-expanded .redirect-collapse {
+	grid-template-rows: 1fr;
+	opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.redirect-collapse {
+		transition: none;
+	}
+}

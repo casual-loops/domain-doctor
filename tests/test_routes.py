@@ -117,7 +117,7 @@ def test_health_endpoint():
 
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
-    assert response.json()["version"] == "1.2.0"
+    assert response.json()["version"] == "1.2.1"
 
 
 def test_api_check(monkeypatch):
@@ -179,6 +179,8 @@ def test_report_renders_redirect_chain(monkeypatch):
     assert "https://example.com/" in response.text
     assert "Moved Permanently" in response.text
     assert "FINAL" in response.text
+    assert "/static/disclosure.css" in response.text
+    assert 'style="' not in response.text
 
 
 def test_blocked_report(monkeypatch):

@@ -16,7 +16,7 @@ from app.rate_limit import SlidingWindowRateLimiter, get_client_identifier
 from app.security import TargetValidationError, validate_target
 
 
-APP_VERSION = "1.2.0"
+APP_VERSION = "1.2.1"
 
 BROWSER_SCAN_RATE_LIMIT = int(os.getenv("BROWSER_SCAN_RATE_LIMIT", "60"))
 API_SCAN_RATE_LIMIT = int(os.getenv("API_SCAN_RATE_LIMIT", "30"))
