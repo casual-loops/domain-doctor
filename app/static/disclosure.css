@@ -1,0 +1,20 @@
+.redirect-collapse {
+	max-height: 0;
+	opacity: 0;
+	overflow: hidden;
+
+	transition:
+		max-height 220ms ease,
+		opacity 180ms ease;
+}
+
+.redirect-result.is-expanded .redirect-collapse {
+	max-height: 2000px;
+	opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.redirect-collapse {
+		transition: none;
+	}
+}
