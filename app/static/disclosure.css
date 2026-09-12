@@ -1,15 +1,21 @@
 .redirect-collapse {
-	max-height: 0;
+	display: grid;
+	grid-template-rows: 0fr;
 	opacity: 0;
 	overflow: hidden;
 
 	transition:
-		max-height 220ms ease,
+		grid-template-rows 220ms ease,
 		opacity 180ms ease;
 }
 
+.redirect-collapse > .redirect-result-body {
+	min-height: 0;
+	overflow: hidden;
+}
+
 .redirect-result.is-expanded .redirect-collapse {
-	max-height: 2000px;
+	grid-template-rows: 1fr;
 	opacity: 1;
 }
 
