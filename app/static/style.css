@@ -27,7 +27,7 @@
 	--warn: #d29922;
 	--fail: #f85149;
 
-	--grid-line: rgba(180, 195, 210, 0.045);
+	--grid-line: rgba(180, 195, 210, 0.032);
 
 	--content-width: 1080px;
 }
@@ -52,7 +52,7 @@ html[data-theme="light"] {
 	--warn: #9a6700;
 	--fail: #cf222e;
 
-	--grid-line: rgba(40, 55, 70, 0.055);
+	--grid-line: rgba(40, 55, 70, 0.04);
 }
 
 body {
