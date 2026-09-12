@@ -1,6 +1,7 @@
 from fastapi.testclient import TestClient
 
 import app.main as main
+from app.checks.http import HttpTrace, ResponseSnapshot
 from app.models import CheckResult
 from app.security import TargetValidationError
 
@@ -18,6 +19,81 @@ def fake_results():
             detail="example.com resolved successfully.",
         )
     ]
+
+
+def fake_diagnosis_with_traces(host):
+    return (
+        "example.com",
+        fake_results(),
+        HttpTrace(responses=[]),
+        HttpTrace(responses=[]),
+    )
+
+
+def fake_diagnosis_with_visible_redirects(host):
+    results = fake_results() + [
+        CheckResult(
+            name="HTTP reachability",
+            category="HTTP",
+            status="pass",
+            summary="HTTP responded with status 301.",
+            detail="Connected successfully.",
+        ),
+        CheckResult(
+            name="HTTP to HTTPS redirect",
+            category="HTTP",
+            status="pass",
+            summary="HTTP redirects to HTTPS.",
+            detail="301 http://example.com/ -> 200 https://example.com/",
+        ),
+        CheckResult(
+            name="HTTPS response",
+            category="HTTP",
+            status="pass",
+            summary="HTTPS returned status 200.",
+            detail="200 https://example.com/",
+        ),
+    ]
+
+    http_trace = HttpTrace(
+        responses=[
+            ResponseSnapshot(
+                url="http://example.com/",
+                address="93.184.216.34",
+                status=301,
+                reason="Moved Permanently",
+                headers={
+                    "location": "https://example.com/"
+                },
+            ),
+            ResponseSnapshot(
+                url="https://example.com/",
+                address="93.184.216.34",
+                status=200,
+                reason="OK",
+                headers={},
+            ),
+        ]
+    )
+
+    https_trace = HttpTrace(
+        responses=[
+            ResponseSnapshot(
+                url="https://example.com/",
+                address="93.184.216.34",
+                status=200,
+                reason="OK",
+                headers={},
+            )
+        ]
+    )
+
+    return (
+        "example.com",
+        results,
+        http_trace,
+        https_trace,
+    )
 
 
 def test_homepage():
@@ -41,6 +117,7 @@ def test_health_endpoint():
 
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
+    assert response.json()["version"] == "1.2.0"
 
 
 def test_api_check(monkeypatch):
@@ -60,16 +137,15 @@ def test_api_check(monkeypatch):
 
     assert response.status_code == 200
     assert response.json()["hostname"] == "example.com"
+    assert "http_trace" not in response.json()
+    assert "https_trace" not in response.json()
 
 
 def test_report_page(monkeypatch):
     monkeypatch.setattr(
         main,
-        "diagnose_host",
-        lambda host: (
-            "example.com",
-            fake_results(),
-        ),
+        "diagnose_host_with_traces",
+        fake_diagnosis_with_traces,
     )
 
     response = client.get(
@@ -82,6 +158,29 @@ def test_report_page(monkeypatch):
     assert "HEALTHY" in response.text
 
 
+def test_report_renders_redirect_chain(monkeypatch):
+    monkeypatch.setattr(
+        main,
+        "diagnose_host_with_traces",
+        fake_diagnosis_with_visible_redirects,
+    )
+
+    response = client.get(
+        "/check",
+        params={"host": "example.com"},
+    )
+
+    assert response.status_code == 200
+    assert "Redirect chain" in response.text
+    assert "View chain" in response.text
+    assert "HTTP ENTRY" in response.text
+    assert "HTTPS ENTRY" in response.text
+    assert "http://example.com/" in response.text
+    assert "https://example.com/" in response.text
+    assert "Moved Permanently" in response.text
+    assert "FINAL" in response.text
+
+
 def test_blocked_report(monkeypatch):
     def blocked(host):
         raise TargetValidationError(
@@ -90,7 +189,7 @@ def test_blocked_report(monkeypatch):
 
     monkeypatch.setattr(
         main,
-        "diagnose_host",
+        "diagnose_host_with_traces",
         blocked,
     )
 

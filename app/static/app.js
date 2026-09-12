@@ -124,12 +124,20 @@ document.addEventListener("DOMContentLoaded", () => {
 	function applyTheme(theme) {
 		root.dataset.theme = theme;
 
+		const nextTheme = theme === "dark" ? "light" : "dark";
+		const nextThemeLabel = `Switch to ${nextTheme} theme`;
+
 		if (themeIcon) {
 			themeIcon.textContent = theme === "dark" ? "☼" : "☾";
 		}
 
 		if (themeLabel) {
 			themeLabel.textContent = theme === "dark" ? "Light" : "Dark";
+		}
+
+		if (themeToggle) {
+			themeToggle.setAttribute("aria-label", nextThemeLabel);
+			themeToggle.setAttribute("title", nextThemeLabel);
 		}
 
 		if (themeColorMeta) {
@@ -155,6 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	forms.forEach((form) => {
 		form.addEventListener("submit", () => {
 			trackEvent("scan-started");
+			form.setAttribute("aria-busy", "true");
 
 			if (!overlay || !stage) {
 				return;
@@ -247,6 +256,174 @@ document.addEventListener("DOMContentLoaded", () => {
 					emptyMessage.hidden = visibleRows.length !== 0;
 				}
 			});
+		});
+	});
+
+	document.querySelectorAll("[data-collapsible]").forEach((panel) => {
+		const toggle = panel.querySelector("[data-collapsible-toggle]");
+		const content = panel.querySelector("[data-collapsible-content]");
+		const icon = panel.querySelector(".redirect-toggle");
+		const action = panel.querySelector(".redirect-result-action");
+
+		if (!toggle || !content) {
+			return;
+		}
+
+		if (toggle.getAttribute("aria-expanded") === "false") {
+			content.hidden = true;
+		}
+
+		toggle.addEventListener("click", () => {
+			const isExpanded = toggle.getAttribute("aria-expanded") === "true";
+
+			if (isExpanded) {
+				content.style.height = `${content.scrollHeight}px`;
+
+				requestAnimationFrame(() => {
+					content.style.height = "0px";
+					content.style.opacity = "0";
+				});
+
+				panel.classList.add("is-collapsed");
+				toggle.setAttribute("aria-expanded", "false");
+
+				if (icon) {
+					icon.textContent = "+";
+				}
+
+				if (action) {
+					action.textContent = "View chain";
+				}
+
+				const finishCollapse = (event) => {
+					if (event.propertyName !== "height") {
+						return;
+					}
+
+					content.hidden = true;
+					content.removeEventListener("transitionend", finishCollapse);
+				};
+
+				content.addEventListener("transitionend", finishCollapse);
+
+				return;
+			}
+
+			trackEvent("redirect-chain-opened");
+			content.hidden = false;
+			panel.classList.remove("is-collapsed");
+			content.style.height = "0px";
+			content.style.opacity = "0";
+
+			requestAnimationFrame(() => {
+				content.style.height = `${content.scrollHeight}px`;
+				content.style.opacity = "1";
+			});
+
+			toggle.setAttribute("aria-expanded", "true");
+
+			if (icon) {
+				icon.textContent = "−";
+			}
+
+			if (action) {
+				action.textContent = "Hide chain";
+			}
+
+			const finishExpand = (event) => {
+				if (event.propertyName !== "height") {
+					return;
+				}
+
+				content.style.height = "auto";
+				content.removeEventListener("transitionend", finishExpand);
+			};
+
+			content.addEventListener("transitionend", finishExpand);
+		});
+	});
+
+	const reducedMotion = window.matchMedia(
+		"(prefers-reduced-motion: reduce)",
+	).matches;
+
+	document.querySelectorAll(".result-details").forEach((details) => {
+		const summary = details.querySelector("summary");
+
+		if (!summary) {
+			return;
+		}
+
+		let isAnimating = false;
+
+		summary.addEventListener("click", (event) => {
+			if (reducedMotion) {
+				return;
+			}
+
+			event.preventDefault();
+
+			if (isAnimating) {
+				return;
+			}
+
+			isAnimating = true;
+
+			if (details.open) {
+				const startHeight = details.offsetHeight;
+				const endHeight = summary.offsetHeight;
+
+				details.classList.add("is-closing");
+				details.style.height = `${startHeight}px`;
+
+				requestAnimationFrame(() => {
+					details.style.height = `${endHeight}px`;
+				});
+
+				details.addEventListener(
+					"transitionend",
+					(event) => {
+						if (event.propertyName !== "height") {
+							return;
+						}
+
+						details.open = false;
+						details.classList.remove("is-closing");
+						details.style.height = "";
+						isAnimating = false;
+					},
+					{ once: true },
+				);
+
+				return;
+			}
+
+			const startHeight = details.offsetHeight;
+
+			details.open = true;
+
+			const endHeight = details.offsetHeight;
+
+			details.classList.add("is-opening");
+			details.style.height = `${startHeight}px`;
+
+			requestAnimationFrame(() => {
+				details.style.height = `${endHeight}px`;
+			});
+
+			details.addEventListener(
+				"transitionend",
+				(event) => {
+					if (event.propertyName !== "height") {
+						return;
+					}
+
+					details.classList.remove("is-opening");
+					details.style.height = "";
+					isAnimating = false;
+				},
+				{ once: true },
+			);
 		});
 	});
 });

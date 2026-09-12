@@ -1,0 +1,22 @@
+<article
+	class="result-row {{ result.status }}"
+	data-result-status="{{ result.status }}"
+>
+	<div class="result-main">
+		<span class="status-icon" aria-hidden="true">
+			{% if result.status == "pass" %}✓{% elif result.status == "warn" %}!{% else %}×{% endif %}
+		</span>
+
+		<div class="result-copy">
+			<h3><span class="sr-only">{{ result.status | upper }}: </span>{{ result.name }}</h3>
+			<p>{{ result.summary }}</p>
+		</div>
+	</div>
+
+	{% if result.detail %}
+	<details class="result-details">
+		<summary>Details<span class="sr-only"> for {{ result.name }}</span></summary>
+		<div class="result-detail">{{ result.detail }}</div>
+	</details>
+	{% endif %}
+</article>

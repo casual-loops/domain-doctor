@@ -9,13 +9,14 @@ from fastapi.templating import Jinja2Templates
 
 from app.checks.dns import check_dns
 from app.checks.headers import check_security_headers
-from app.checks.http import check_http, inspect_https
+from app.checks.http import check_http, inspect_http, inspect_https
 from app.checks.tls import check_tls
+from app.presentation import build_redirect_hops
 from app.rate_limit import SlidingWindowRateLimiter, get_client_identifier
 from app.security import TargetValidationError, validate_target
 
 
-APP_VERSION = "1.1.0"
+APP_VERSION = "1.2.0"
 
 BROWSER_SCAN_RATE_LIMIT = int(os.getenv("BROWSER_SCAN_RATE_LIMIT", "60"))
 API_SCAN_RATE_LIMIT = int(os.getenv("API_SCAN_RATE_LIMIT", "30"))
@@ -49,9 +50,9 @@ templates = Jinja2Templates(
 )
 
 
-def diagnose_host(host: str):
+def diagnose_host_with_traces(host: str):
     """
-    Run all Domain Doctor diagnostics for a public hostname.
+    Run all Domain Doctor diagnostics and preserve HTTP redirect traces.
     """
 
     hostname, addresses = validate_target(host)
@@ -72,12 +73,14 @@ def diagnose_host(host: str):
         )
     )
 
+    http_trace = inspect_http(hostname)
     https_trace = inspect_https(hostname)
 
     results.extend(
         check_http(
             hostname,
             addresses,
+            http_trace=http_trace,
             https_trace=https_trace,
         )
     )
@@ -87,6 +90,16 @@ def diagnose_host(host: str):
             https_trace.final,
         )
     )
+
+    return hostname, results, http_trace, https_trace
+
+
+def diagnose_host(host: str):
+    """
+    Run Domain Doctor diagnostics using the existing public contract.
+    """
+
+    hostname, results, _, _ = diagnose_host_with_traces(host)
 
     return hostname, results
 
@@ -151,7 +164,7 @@ def check_page(
             browser_scan_rate_limiter,
             BROWSER_SCAN_RATE_LIMIT,
         )
-        hostname, results = diagnose_host(host)
+        hostname, results, http_trace, https_trace = diagnose_host_with_traces(host)
 
     except HTTPException as exc:
         if exc.status_code != 429:
@@ -259,6 +272,10 @@ def check_page(
             "overall_class": overall_class,
             "overall_summary": overall_summary,
             "checked_at": checked_at,
+            "http_trace": http_trace,
+            "https_trace": https_trace,
+            "http_redirect_hops": build_redirect_hops(http_trace),
+            "https_redirect_hops": build_redirect_hops(https_trace),
             "error": None,
         },
     )

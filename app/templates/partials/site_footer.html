@@ -1,0 +1,56 @@
+<footer class="site-footer">
+	<p>Domain Doctor is an open-source outside-in diagnostic tool. (v1.2.0)</p>
+
+	{% if active_page == "privacy" %}
+	<p>
+		<a href="/">Home</a>
+		·
+		<a href="https://github.com/casual-loops/domain-doctor">Source</a>
+		·
+		<a href="/docs">API</a>
+		·
+		<a href="/privacy" aria-current="page">Privacy</a>
+		·
+		<a
+			href="https://github.com/casual-loops/domain-doctor/issues/new?template=feedback.yml"
+			target="_blank"
+			rel="noopener noreferrer"
+			data-analytics-event="feedback-click"
+		>
+			Feedback
+		</a>
+	</p>
+	{% else %}
+	<p>
+		Built by
+		<a
+			href="https://github.com/casual-loops"
+			target="_blank"
+			rel="noopener noreferrer"
+		>
+			casual-loops
+		</a>
+		·
+		<a
+			href="https://github.com/casual-loops/domain-doctor"
+			target="_blank"
+			rel="noopener noreferrer"
+		>
+			Source
+		</a>
+		·
+		<a href="/docs">API</a>
+		·
+		<a href="/privacy">Privacy</a>
+		·
+		<a
+			href="https://github.com/casual-loops/domain-doctor/issues/new?template=feedback.yml"
+			target="_blank"
+			rel="noopener noreferrer"
+			data-analytics-event="feedback-click"
+		>
+			Feedback
+		</a>
+	</p>
+	{% endif %}
+</footer>

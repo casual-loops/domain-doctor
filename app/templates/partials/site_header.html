@@ -1,0 +1,33 @@
+<header class="site-header">
+	<a class="brand" href="/">
+		<span class="brand-mark" aria-hidden="true">●</span>
+		DOMAIN DOCTOR
+	</a>
+
+	<nav class="site-nav" aria-label="Primary navigation">
+		{% if active_page == "privacy" %}
+		<a href="/">Home</a>
+		{% else %}
+		<a
+			href="https://github.com/casual-loops/domain-doctor"
+			target="_blank"
+			rel="noopener noreferrer"
+		>
+			GitHub
+		</a>
+		{% endif %}
+
+		<a href="/docs">API Docs</a>
+
+		<button
+			type="button"
+			class="theme-toggle"
+			data-theme-toggle
+			aria-label="Switch to light theme"
+			title="Switch to light theme"
+		>
+			<span data-theme-icon aria-hidden="true">☼</span>
+			<span data-theme-label>Light</span>
+		</button>
+	</nav>
+</header>

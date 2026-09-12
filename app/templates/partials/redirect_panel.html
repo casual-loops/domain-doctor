@@ -1,0 +1,101 @@
+{% macro render_timeline(trace, hops, modifier) %}
+<div class="redirect-timeline redirect-timeline-{{ modifier }}">
+	{% if hops %}
+		{% for hop in hops %}
+		<div class="redirect-hop">
+			<div class="redirect-hop-main">
+				<span class="redirect-status">{{ hop.response.status }}</span>
+
+				<div class="redirect-hop-copy">
+					<span class="redirect-url">{{ hop.response.url }}</span>
+					<span class="redirect-reason">{{ hop.response.reason }}</span>
+				</div>
+
+				{% if loop.last %}
+				<span class="redirect-final">FINAL</span>
+				{% endif %}
+			</div>
+
+			{% if not loop.last %}
+			<div class="redirect-transition">
+				<span class="redirect-rail" aria-hidden="true"></span>
+
+				<div class="redirect-changes">
+					{% for change in hop.changes %}
+					<span class="redirect-change {{ change.kind }}">{{ change.label }}</span>
+					{% endfor %}
+				</div>
+			</div>
+			{% endif %}
+		</div>
+		{% endfor %}
+	{% else %}
+		<p class="redirect-empty">No {{ modifier | upper }} response was received.</p>
+	{% endif %}
+
+	{% if trace.error %}
+	<p class="redirect-error">{{ trace.error }}</p>
+	{% endif %}
+</div>
+{% endmacro %}
+
+<article class="redirect-result" data-collapsible>
+	<button
+		type="button"
+		class="redirect-result-toggle"
+		aria-expanded="false"
+		aria-controls="redirect-chain-content"
+		data-collapsible-toggle
+	>
+		<span class="redirect-result-icon" aria-hidden="true">↳</span>
+		<span class="redirect-result-copy">
+			<span class="redirect-result-title">Redirect chain</span>
+			<span class="redirect-result-summary">
+				{{ http_redirect_hops | length - 1 if http_redirect_hops else 0 }} redirect{% if (http_redirect_hops | length - 1 if http_redirect_hops else 0) != 1 %}s{% endif %}
+				{% if http_redirect_hops and http_redirect_hops[-1] %}
+				· Final status {{ http_redirect_hops[-1].response.status }}
+				{% endif %}
+			</span>
+		</span>
+		<span class="redirect-result-action">View chain</span>
+	</button>
+
+	<div
+		id="redirect-chain-content"
+		class="redirect-collapse"
+		data-collapsible-content
+		hidden
+		style="height: 0px; opacity: 0;"
+	>
+		<div class="redirect-result-body">
+			<fieldset class="redirect-view">
+				<legend class="sr-only">Redirect entry path</legend>
+
+				<input
+					type="radio"
+					name="redirect-entry-view"
+					id="redirect-http-view"
+					class="redirect-view-input"
+					checked
+				/>
+
+				<input
+					type="radio"
+					name="redirect-entry-view"
+					id="redirect-https-view"
+					class="redirect-view-input"
+				/>
+
+				<div class="redirect-entry-switch" aria-label="Redirect entry path">
+					<label for="redirect-http-view" class="redirect-entry-option">HTTP ENTRY</label>
+					<label for="redirect-https-view" class="redirect-entry-option">HTTPS ENTRY</label>
+				</div>
+
+				<div class="redirect-view-panels">
+					{{ render_timeline(http_trace, http_redirect_hops, "http") }}
+					{{ render_timeline(https_trace, https_redirect_hops, "https") }}
+				</div>
+			</fieldset>
+		</div>
+	</div>
+</article>
