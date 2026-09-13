@@ -209,7 +209,7 @@ def test_parity_fails_when_only_one_family_reaches_https():
     )
 
 
-def test_parity_passes_for_single_stack_target():
+def test_parity_is_not_applicable_for_single_stack_target():
     diagnostics = AddressFamilyDiagnostics(
         hostname="example.com",
         ipv4=family_result(
@@ -225,7 +225,7 @@ def test_parity_passes_for_single_stack_target():
 
     result = analyze_parity(diagnostics)
 
-    assert result.status == "pass"
+    assert result.status == "not_applicable"
     assert result.summary == (
         "IPv4 and IPv6 parity is not applicable."
     )
@@ -235,7 +235,7 @@ def test_parity_passes_for_single_stack_target():
     )
 
 
-def test_parity_passes_when_scanner_cannot_test_both_families():
+def test_parity_is_unavailable_when_scanner_cannot_test_both_families():
     diagnostics = AddressFamilyDiagnostics(
         hostname="example.com",
         ipv4=family_result(
@@ -254,7 +254,7 @@ def test_parity_passes_when_scanner_cannot_test_both_families():
 
     result = analyze_parity(diagnostics)
 
-    assert result.status == "pass"
+    assert result.status == "unavailable"
     assert result.summary == (
         "IPv4 and IPv6 parity could not be compared."
     )

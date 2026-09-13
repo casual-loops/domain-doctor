@@ -8,7 +8,13 @@ from app.diagnostics import (
 )
 
 
-ParityStatus = Literal["pass", "warn", "fail"]
+ParityStatus = Literal[
+    "pass",
+    "warn",
+    "fail",
+    "not_applicable",
+    "unavailable",
+]
 
 
 @dataclass(frozen=True)
@@ -98,7 +104,7 @@ def analyze_parity(
 
     if not ipv4.available or not ipv6.available:
         return ParityAnalysis(
-            status="pass",
+            status="not_applicable",
             summary="IPv4 and IPv6 parity is not applicable.",
             detail=(
                 "The hostname is not configured for both "
@@ -111,7 +117,7 @@ def analyze_parity(
         or ipv6.scanner_available is False
     ):
         return ParityAnalysis(
-            status="pass",
+            status="unavailable",
             summary="IPv4 and IPv6 parity could not be compared.",
             detail=(
                 "Domain Doctor cannot currently test both "
@@ -177,15 +183,15 @@ def analyze_parity(
         )
 
     if ipv4_tls != ipv6_tls:
-      return ParityAnalysis(
-          status="warn",
-          summary="IPv4 and IPv6 behavior differs.",
-          detail=(
-              "TLS outcome differs: "
-              f"IPv4 is {ipv4_tls}, "
-              f"IPv6 is {ipv6_tls}."
-          ),
-      )
+        return ParityAnalysis(
+            status="warn",
+            summary="IPv4 and IPv6 behavior differs.",
+            detail=(
+                "TLS outcome differs: "
+                f"IPv4 is {ipv4_tls}, "
+                f"IPv6 is {ipv6_tls}."
+            ),
+        )
 
     if ipv4_host != ipv6_host:
         return ParityAnalysis(
@@ -199,13 +205,13 @@ def analyze_parity(
         )
 
     if ipv4_redirect != ipv6_redirect:
-      return ParityAnalysis(
-          status="warn",
-          summary="IPv4 and IPv6 behavior differs.",
-          detail=(
-              "HTTP redirect path differs between IPv4 and IPv6."
-          ),
-      )
+        return ParityAnalysis(
+            status="warn",
+            summary="IPv4 and IPv6 behavior differs.",
+            detail=(
+                "HTTP redirect path differs between IPv4 and IPv6."
+            ),
+        )
 
     return ParityAnalysis(
         status="warn",

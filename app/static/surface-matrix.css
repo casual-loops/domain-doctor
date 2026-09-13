@@ -142,3 +142,80 @@
 .surface-value.scanner {
 	color: var(--blue);
 }
+
+.surface-parity {
+	margin-top: 1.25rem;
+	padding-top: 1.1rem;
+
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 1rem;
+
+	border-top: 1px solid var(--border);
+}
+
+.surface-parity-heading {
+	display: flex;
+	align-items: center;
+	gap: 0.55rem;
+
+	font-family: monospace;
+	font-size: 0.68rem;
+	font-weight: 800;
+	letter-spacing: 0.08em;
+}
+
+.surface-parity-label {
+	color: var(--subtle);
+}
+
+.surface-parity-status {
+	padding: 0.2rem 0.45rem;
+
+	border: 1px solid currentColor;
+	border-radius: 999px;
+}
+
+.surface-parity.pass .surface-parity-status {
+	color: var(--pass);
+}
+
+.surface-parity.warn .surface-parity-status {
+	color: var(--warn);
+}
+
+.surface-parity.fail .surface-parity-status {
+	color: var(--fail);
+}
+
+.surface-parity.not_applicable .surface-parity-status,
+.surface-parity.unavailable .surface-parity-status {
+	color: var(--blue);
+}
+
+.surface-parity-copy p {
+	margin: 0;
+}
+
+.surface-parity-summary {
+	color: var(--text);
+
+	font-size: 0.84rem;
+	font-weight: 650;
+}
+
+.surface-parity-detail {
+	margin-top: 0.3rem !important;
+
+	color: var(--muted);
+
+	font-size: 0.78rem;
+	line-height: 1.5;
+}
+
+@media (max-width: 700px) {
+	.surface-parity {
+		grid-template-columns: 1fr;
+		gap: 0.65rem;
+	}
+}

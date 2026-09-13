@@ -18,6 +18,7 @@ from app.presentation import (
     build_redirect_hops,
     build_surface_matrix,
 )
+from app.parity import analyze_parity
 
 
 APP_VERSION = "1.2.1"
@@ -297,6 +298,9 @@ def check_page(
             "http_redirect_hops": build_redirect_hops(http_trace),
             "https_redirect_hops": build_redirect_hops(https_trace),
             "surface_matrix": build_surface_matrix(
+                address_family_diagnostics
+            ),
+            "parity_analysis": analyze_parity(
                 address_family_diagnostics
             ),
             "error": None,
