@@ -49,7 +49,7 @@ Example:
 ```yaml
 services:
   app:
-    image: ghcr.io/casual-loops/domain-doctor:1.1.0
+    image: ghcr.io/casual-loops/domain-doctor:1.3.0
 ```
 
 ## Deployment procedure
@@ -142,6 +142,9 @@ After deployment, verify all of the following:
 8. Analytics requests to `gateway.umami.is/api/send` are not blocked by Content Security Policy.
 9. Umami receives a production visit.
 10. `/docs` renders the FastAPI Swagger UI successfully.
+11. The Surface Matrix renders IPv4 and IPv6 states correctly.
+12. Parity displays PASS, WARN, FAIL, N/A, or UNAVAILABLE as appropriate.
+13. Scanner-unavailable states do not affect the report health counts.
 
 ## Rollback
 

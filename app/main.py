@@ -21,7 +21,7 @@ from app.presentation import (
 from app.parity import analyze_parity
 
 
-APP_VERSION = "1.2.1"
+APP_VERSION = "1.3.0"
 
 BROWSER_SCAN_RATE_LIMIT = int(os.getenv("BROWSER_SCAN_RATE_LIMIT", "60"))
 API_SCAN_RATE_LIMIT = int(os.getenv("API_SCAN_RATE_LIMIT", "30"))
