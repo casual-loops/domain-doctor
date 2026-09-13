@@ -1,47 +1,26 @@
-{% extends "base.html" %}
-{% set active_page = "home" %}
-
-{% block title %}Domain Doctor | DNS, TLS, HTTPS &amp; Security Diagnostics{% endblock %}
-
-{% block head_meta %}
-<meta
-	name="description"
-	content="Check the public-facing health of a hostname across DNS, TLS certificates, HTTPS redirects, response behavior, and browser security headers."
-/>
+{% extends "base.html" %} {% set active_page = "home" %} {% block title %}Domain
+Doctor | DNS, TLS, HTTPS &amp; Security Diagnostics{% endblock %} {% block
+meta_description %} Check the public-facing health of a hostname across DNS, TLS
+certificates, HTTPS redirects, response behavior, and browser security headers.
+{% endblock %} {% block og_title %} Domain Doctor | Outside-In Infrastructure
+Diagnostics {% endblock %} {% block og_description %} Check DNS, TLS
+certificates, HTTPS redirects, response behavior, and browser security headers
+from one public hostname. {% endblock %} {% block twitter_title %} Domain Doctor
+| Outside-In Infrastructure Diagnostics {% endblock %} {% block
+twitter_description %} Check DNS, TLS, HTTPS, redirects, and security headers
+from one public hostname. {% endblock %} {% block head_meta %}
 <meta name="author" content="casual-loops" />
 <meta name="robots" content="index, follow" />
 <link rel="canonical" href="https://domaindoctor.fyi/" />
-
-<meta property="og:type" content="website" />
-<meta property="og:site_name" content="Domain Doctor" />
-<meta property="og:title" content="Domain Doctor | Outside-In Infrastructure Diagnostics" />
-<meta
-	property="og:description"
-	content="Check DNS, TLS certificates, HTTPS redirects, response behavior, and browser security headers from one public hostname."
-/>
-<meta property="og:url" content="https://domaindoctor.fyi/" />
-
-<meta name="twitter:card" content="summary" />
-<meta name="twitter:title" content="Domain Doctor | Outside-In Infrastructure Diagnostics" />
-<meta
-	name="twitter:description"
-	content="Check DNS, TLS, HTTPS, redirects, and security headers from one public hostname."
-/>
-{% endblock %}
-
-{% block styles %}
-<link rel="stylesheet" href="/static/landing.css" />
-{% endblock %}
-
-{% block main %}
+{% endblock %} {% block main %}
 <main class="landing-main">
 	<section class="hero">
 		<p class="eyebrow">OUTSIDE-IN INFRASTRUCTURE DIAGNOSTICS</p>
 		<h1>Know what the internet sees.</h1>
 
 		<p class="hero-copy">
-			Check DNS, TLS certificates, HTTPS behavior, redirects, and common
-			browser security headers from a single public hostname.
+			Check DNS, TLS certificates, HTTPS behavior, redirects, and common browser
+			security headers from a single public hostname.
 		</p>
 
 		<form action="/check" method="get" class="check-form" data-diagnostic-form>
@@ -66,9 +45,15 @@
 
 		<div class="try-row">
 			<span>Try:</span>
-			<button type="button" class="example-host" data-host="github.com">github.com</button>
-			<button type="button" class="example-host" data-host="example.com">example.com</button>
-			<button type="button" class="example-host" data-host="cloudflare.com">cloudflare.com</button>
+			<button type="button" class="example-host" data-host="github.com">
+				github.com
+			</button>
+			<button type="button" class="example-host" data-host="example.com">
+				example.com
+			</button>
+			<button type="button" class="example-host" data-host="cloudflare.com">
+				cloudflare.com
+			</button>
 		</div>
 	</section>
 
@@ -82,13 +67,17 @@
 		<article class="capability">
 			<span class="capability-dot" aria-hidden="true"></span>
 			<span class="capability-name">TLS</span>
-			<span class="capability-copy">Certificates, validity, and hostname coverage</span>
+			<span class="capability-copy"
+				>Certificates, validity, and hostname coverage</span
+			>
 		</article>
 
 		<article class="capability">
 			<span class="capability-dot" aria-hidden="true"></span>
 			<span class="capability-name">HTTPS</span>
-			<span class="capability-copy">Reachability, redirects, and response behavior</span>
+			<span class="capability-copy"
+				>Reachability, redirects, and response behavior</span
+			>
 		</article>
 
 		<article class="capability">
@@ -105,8 +94,5 @@
 		<span>PORTS 80 / 443</span>
 	</section>
 </main>
-{% endblock %}
-
-{% block overlays %}
-	{% include "partials/loading_overlay.html" %}
-{% endblock %}
+{% endblock %} {% block overlays %} {% include "partials/loading_overlay.html"
+%} {% endblock %}
