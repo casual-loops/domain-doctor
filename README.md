@@ -11,7 +11,7 @@
 
 Domain Doctor is an open-source, outside-in diagnostic tool for inspecting the public-facing health of a hostname.
 
-Enter one public hostname and Domain Doctor checks DNS resolution, TLS certificates, HTTPS behavior, redirects, and common browser security headers. No account is required.
+Enter one public hostname and Domain Doctor checks DNS resolution, TLS certificates, HTTPS behavior, redirects, common browser security headers, and IPv4/IPv6 path consistency. No account is required.
 
 Domain Doctor is also free to use as a teaching and learning tool for networking, cybersecurity, web infrastructure, IT support, and systems administration.
 
@@ -22,6 +22,7 @@ Domain Doctor is also free to use as a teaching and learning tool for networking
 | DNS | Resolution, IPv4 records, IPv6 records |
 | TLS | TLS connectivity, certificate validity, expiration, hostname coverage, certificate verification |
 | HTTP | HTTP reachability, HTTP to HTTPS redirects, final HTTPS response, structured redirect-chain visibility |
+| Request surface | IPv4 and IPv6 HTTP, HTTPS, TLS, final-host comparison, scanner capability detection, parity analysis |
 | Security | HSTS, Content Security Policy, X-Content-Type-Options, Referrer Policy |
 
 Every diagnostic returns one of three states:
@@ -32,9 +33,16 @@ Every diagnostic returns one of three states:
 | WARN | The result may deserve review, but does not necessarily indicate a broken service |
 | FAIL | The check detected a problem or could not complete safely |
 
+IPv4/IPv6 parity also uses neutral states when comparison is not meaningful or cannot be performed:
+
+| State | Meaning |
+| --- | --- |
+| N/A | The hostname is intentionally single-stack, so parity does not apply |
+| UNAVAILABLE | Domain Doctor cannot test both address families from the current scanner |
+
 ## Interface
 
-Domain Doctor includes a responsive browser interface with light and dark themes, report navigation, status filtering, expandable technical details, an overall diagnostic verdict, and a dedicated redirect-chain timeline for HTTP behavior.
+Domain Doctor includes a responsive browser interface with light and dark themes, report navigation, status filtering, expandable technical details, an overall diagnostic verdict, a dedicated redirect-chain timeline, and a Surface Matrix that compares IPv4 and IPv6 behavior side by side.
 
 ### Landing page
 
@@ -50,7 +58,7 @@ The same diagnostic engine is also available through a JSON API.
 
 Domain Doctor can be used as a free classroom or self-study tool to make otherwise abstract infrastructure concepts visible.
 
-Educators can use it to demonstrate DNS resolution, TLS certificates, HTTPS redirects, browser security headers, and layered troubleshooting with real public websites. Students can compare public sites, inspect technical evidence, and connect networking concepts to observable behavior without creating an account.
+Educators can use it to demonstrate DNS resolution, IPv4 and IPv6 behavior, TLS certificates, HTTPS redirects, browser security headers, and layered troubleshooting with real public websites. Students can compare public sites, inspect technical evidence, and connect networking concepts to observable behavior without creating an account.
 
 The goal is not to make every website produce all PASS results. A warning may be completely acceptable depending on the site's architecture. The value is in understanding what each result means and why different websites behave differently.
 
@@ -198,12 +206,16 @@ domain-doctor/
 │   │   └── tls.py
 │   ├── static/
 │   ├── templates/
+│   ├── diagnostics.py
 │   ├── main.py
 │   ├── models.py
+│   ├── parity.py
+│   ├── presentation.py
 │   └── security.py
 ├── docs/
 │   ├── images/
-│   └── EDUCATION.md
+│   ├── EDUCATION.md
+│   └── PRODUCTION.md
 ├── tests/
 ├── .github/
 │   └── workflows/
@@ -236,7 +248,7 @@ Production consumes the container image published by GitHub Actions rather than 
 
 ## Current scope
 
-Domain Doctor v1.2 focuses on public web service diagnostics with improved HTTP redirect-chain visibility.
+Domain Doctor v1.3 focuses on public web service diagnostics with address-family-aware execution, a Surface Matrix for IPv4 and IPv6 behavior, scanner capability detection, redirect visibility, and deterministic IPv4/IPv6 parity analysis.
 
 It does not currently provide continuous monitoring, historical uptime, account management, email DNS analysis, or multi-resolver DNS comparison.
 
