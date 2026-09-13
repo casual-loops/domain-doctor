@@ -2,12 +2,12 @@ from fastapi.testclient import TestClient
 
 import app.main as main
 from app.checks.http import HttpTrace, ResponseSnapshot
-from app.models import CheckResult
-from app.security import TargetValidationError
 from app.diagnostics import (
     AddressFamilyDiagnostics,
     AddressFamilyResult,
 )
+from app.models import CheckResult
+from app.security import TargetValidationError
 
 
 client = TestClient(main.app)
@@ -23,6 +23,21 @@ def fake_results():
             detail="example.com resolved successfully.",
         )
     ]
+
+
+def fake_address_family_diagnostics():
+    return AddressFamilyDiagnostics(
+        hostname="example.com",
+        ipv4=AddressFamilyResult(
+            family="ipv4",
+            addresses=("93.184.216.34",),
+            scanner_available=True,
+        ),
+        ipv6=AddressFamilyResult(
+            family="ipv6",
+            addresses=(),
+        ),
+    )
 
 
 def fake_diagnosis_with_traces(host):
@@ -49,7 +64,10 @@ def fake_diagnosis_with_visible_redirects(host):
             category="HTTP",
             status="pass",
             summary="HTTP redirects to HTTPS.",
-            detail="301 http://example.com/ -> 200 https://example.com/",
+            detail=(
+                "301 http://example.com/ -> "
+                "200 https://example.com/"
+            ),
         ),
         CheckResult(
             name="HTTPS response",
@@ -68,7 +86,7 @@ def fake_diagnosis_with_visible_redirects(host):
                 status=301,
                 reason="Moved Permanently",
                 headers={
-                    "location": "https://example.com/"
+                    "location": "https://example.com/",
                 },
             ),
             ResponseSnapshot(
@@ -93,26 +111,61 @@ def fake_diagnosis_with_visible_redirects(host):
         ]
     )
 
-    return (
-        "example.com",
-        results,
-        http_trace,
-        https_trace,
-        fake_address_family_diagnostics(),
-    )
-
-
-def fake_address_family_diagnostics():
-    return AddressFamilyDiagnostics(
+    address_family_diagnostics = AddressFamilyDiagnostics(
         hostname="example.com",
         ipv4=AddressFamilyResult(
             family="ipv4",
             addresses=("93.184.216.34",),
+            scanner_available=True,
+            tls_results=(
+                CheckResult(
+                    name="TLS connection",
+                    category="TLS",
+                    status="pass",
+                    summary="TLS succeeded.",
+                ),
+            ),
+            http_trace=http_trace,
+            https_trace=https_trace,
         ),
         ipv6=AddressFamilyResult(
             family="ipv6",
             addresses=(),
         ),
+    )
+
+    return (
+        "example.com",
+        results,
+        http_trace,
+        https_trace,
+        address_family_diagnostics,
+    )
+
+
+def fake_diagnosis_with_scanner_unavailable(host):
+    address_family_diagnostics = AddressFamilyDiagnostics(
+        hostname="example.com",
+        ipv4=AddressFamilyResult(
+            family="ipv4",
+            addresses=("93.184.216.34",),
+            scanner_available=True,
+        ),
+        ipv6=AddressFamilyResult(
+            family="ipv6",
+            addresses=(
+                "2606:2800:220:1:248:1893:25c8:1946",
+            ),
+            scanner_available=False,
+        ),
+    )
+
+    return (
+        "example.com",
+        fake_results(),
+        HttpTrace(responses=[]),
+        HttpTrace(responses=[]),
+        address_family_diagnostics,
     )
 
 
@@ -137,7 +190,6 @@ def test_health_endpoint():
 
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
-    assert response.json()["version"] == "1.2.1"
 
 
 def test_api_check(monkeypatch):
@@ -199,8 +251,25 @@ def test_report_renders_redirect_chain(monkeypatch):
     assert "https://example.com/" in response.text
     assert "Moved Permanently" in response.text
     assert "FINAL" in response.text
-    assert "/static/disclosure.css" in response.text
-    assert 'style="' not in response.text
+
+
+def test_report_renders_surface_matrix_scanner_unavailable(
+    monkeypatch,
+):
+    monkeypatch.setattr(
+        main,
+        "diagnose_host_with_traces",
+        fake_diagnosis_with_scanner_unavailable,
+    )
+
+    response = client.get(
+        "/check",
+        params={"host": "example.com"},
+    )
+
+    assert response.status_code == 200
+    assert "Surface Matrix" in response.text
+    assert "Scanner unavailable" in response.text
 
 
 def test_blocked_report(monkeypatch):

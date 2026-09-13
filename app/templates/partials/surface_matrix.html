@@ -1,0 +1,100 @@
+{% macro render_surface_value(family, field, kind="text") %} {% set value =
+family | attr(field) %} {% if not family.available %}
+<span class="surface-value muted"> Unavailable </span>
+
+{% elif family.scanner_available == false %}
+<span class="surface-value scanner"> Scanner unavailable </span>
+
+{% elif kind == "tls" %} {% if value == "Valid" %}
+<span class="surface-value pass"> Valid </span>
+{% elif value == "Warning" %}
+<span class="surface-value warn"> Warning </span>
+{% elif value == "Failed" %}
+<span class="surface-value fail"> Failed </span>
+{% else %}
+<span class="surface-value muted"> Not observed </span>
+{% endif %} {% elif value in ["No response", "Not reached"] %}
+<span class="surface-value muted"> {{ value }} </span>
+
+{% elif value %} {% if kind == "code" %}
+<span class="surface-value-code"> {{ value }} </span>
+{% else %}
+<span class="surface-value"> {{ value }} </span>
+{% endif %} {% else %}
+<span class="surface-value muted"> Not observed </span>
+{% endif %} {% endmacro %}
+
+<section
+	class="surface-matrix"
+	aria-labelledby="surface-matrix-heading"
+	aria-describedby="surface-matrix-description"
+>
+	<header class="surface-matrix-header">
+		<div>
+			<p class="eyebrow">REQUEST SURFACE</p>
+			<h2 id="surface-matrix-heading">Surface Matrix</h2>
+		</div>
+
+		<p class="surface-matrix-description" id="surface-matrix-description">
+			Observed behavior across IPv4 and IPv6 paths.
+		</p>
+	</header>
+
+	<div class="surface-matrix-table-wrap">
+		<table class="surface-matrix-table">
+			<thead>
+				<tr>
+					<th scope="col">Path</th>
+					<th scope="col">IPv4</th>
+					<th scope="col">IPv6</th>
+				</tr>
+			</thead>
+
+			<tbody>
+				<tr>
+					<th scope="row">HTTP</th>
+					<td>
+						{{ render_surface_value( surface_matrix.ipv4, "http_entry", "code" )
+						}}
+					</td>
+					<td>
+						{{ render_surface_value( surface_matrix.ipv6, "http_entry", "code" )
+						}}
+					</td>
+				</tr>
+
+				<tr>
+					<th scope="row">HTTPS</th>
+					<td>
+						{{ render_surface_value( surface_matrix.ipv4, "https_response",
+						"code" ) }}
+					</td>
+					<td>
+						{{ render_surface_value( surface_matrix.ipv6, "https_response",
+						"code" ) }}
+					</td>
+				</tr>
+
+				<tr>
+					<th scope="row">TLS</th>
+					<td>
+						{{ render_surface_value( surface_matrix.ipv4, "tls", "tls" ) }}
+					</td>
+					<td>
+						{{ render_surface_value( surface_matrix.ipv6, "tls", "tls" ) }}
+					</td>
+				</tr>
+
+				<tr>
+					<th scope="row">Final host</th>
+					<td>
+						{{ render_surface_value( surface_matrix.ipv4, "final_host" ) }}
+					</td>
+					<td>
+						{{ render_surface_value( surface_matrix.ipv6, "final_host" ) }}
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</section>

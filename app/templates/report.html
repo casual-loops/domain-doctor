@@ -1,9 +1,6 @@
-{% extends "base.html" %}
-{% set active_page = "report" %}
-
-{% block title %}{{ hostname }} Diagnostic Report | Domain Doctor{% endblock %}
-
-{% block head_meta %}
+{% extends "base.html" %} {% set active_page = "report" %} {% block title %}{{
+hostname }} Diagnostic Report | Domain Doctor{% endblock %} {% block head_meta
+%}
 <meta
 	name="description"
 	content="Domain Doctor diagnostic results for {{ hostname }}, including DNS, TLS, HTTPS, redirects, and security headers."
@@ -13,21 +10,24 @@
 
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Domain Doctor" />
-<meta property="og:title" content="{{ hostname }} Diagnostic Report | Domain Doctor" />
+<meta
+	property="og:title"
+	content="{{ hostname }} Diagnostic Report | Domain Doctor"
+/>
 <meta
 	property="og:description"
 	content="DNS, TLS, HTTPS, redirect, and security diagnostics for {{ hostname }}."
 />
-<meta property="og:url" content="https://domaindoctor.fyi/check?host={{ hostname }}" />
-{% endblock %}
-
-{% block styles %}
+<meta
+	property="og:url"
+	content="https://domaindoctor.fyi/check?host={{ hostname }}"
+/>
+{% endblock %} {% block styles %}
 <link rel="stylesheet" href="/static/report.css" />
 <link rel="stylesheet" href="/static/redirect.css" />
 <link rel="stylesheet" href="/static/disclosure.css" />
-{% endblock %}
-
-{% block main %}
+<link rel="stylesheet" href="/static/surface-matrix.css" />
+{% endblock %} {% block main %}
 <main class="report-main" id="report-top">
 	<form action="/check" method="get" class="report-form" data-diagnostic-form>
 		<label for="report-host" class="sr-only">Public hostname</label>
@@ -59,22 +59,21 @@
 		<div>
 			<p class="eyebrow">DIAGNOSTIC REPORT</p>
 			<h1>{{ hostname }}</h1>
-			<p class="scan-meta">Checked {{ checked_at }} · Public hostname · Ports 80 / 443</p>
+			<p class="scan-meta">
+				Checked {{ checked_at }} · Public hostname · Ports 80 / 443
+			</p>
 		</div>
 	</section>
 
-	{% include "partials/health_panel.html" %}
-	{% include "partials/report_controls.html" %}
+	{% include "partials/health_panel.html" %} {% include
+	"partials/surface_matrix.html" %} {% include "partials/report_controls.html"
+	%}
 
 	<section class="result-groups" aria-label="Diagnostic results">
-		{% for category, results in grouped_results.items() %}
-			{% include "partials/result_group.html" %}
-		{% endfor %}
+		{% for category, results in grouped_results.items() %} {% include
+		"partials/result_group.html" %} {% endfor %}
 	</section>
 	{% endif %}
 </main>
-{% endblock %}
-
-{% block overlays %}
-	{% include "partials/loading_overlay.html" %}
-{% endblock %}
+{% endblock %} {% block overlays %} {% include "partials/loading_overlay.html"
+%} {% endblock %}
