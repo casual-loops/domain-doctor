@@ -49,7 +49,7 @@ Example:
 ```yaml
 services:
   app:
-    image: ghcr.io/casual-loops/domain-doctor:1.3.0
+    image: ghcr.io/casual-loops/domain-doctor:1.3.1
 ```
 
 ## Deployment procedure
@@ -145,6 +145,9 @@ After deployment, verify all of the following:
 11. The Surface Matrix renders IPv4 and IPv6 states correctly.
 12. Parity displays PASS, WARN, FAIL, N/A, or UNAVAILABLE as appropriate.
 13. Scanner-unavailable states do not affect the report health counts.
+14. The homepage emits a single `twitter:card` declaration using `summary_large_image`.
+15. `og:image` and `twitter:image` reference the current versioned social preview image.
+16. The social preview image returns HTTP 200 for both normal requests and the `Twitterbot/1.0` user agent.
 
 ## Rollback
 
