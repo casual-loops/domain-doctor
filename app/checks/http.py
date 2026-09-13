@@ -3,14 +3,19 @@ import socket
 import ssl
 from dataclasses import dataclass
 from urllib.parse import urljoin, urlsplit
+from typing import Literal
 
 from app.models import CheckResult
-from app.security import TargetValidationError, validate_target
+from app.security import (
+    TargetValidationError,
+    resolve_target,
+)
 
 
 _TIMEOUT_SECONDS = 5
 _MAX_REDIRECTS = 5
 _REDIRECT_STATUSES = {301, 302, 303, 307, 308}
+AddressFamily = Literal["ipv4", "ipv6"]
 
 
 @dataclass(frozen=True)
@@ -142,10 +147,38 @@ def _parse_target(url: str) -> tuple[str, str, int, str]:
     return parsed.scheme, parsed.hostname, port, path
 
 
-def _request_once(url: str) -> ResponseSnapshot:
+def _request_once(
+    url: str,
+    address_family: AddressFamily | None = None,
+) -> ResponseSnapshot:
     scheme, hostname, port, path = _parse_target(url)
 
-    normalized_hostname, addresses = validate_target(hostname)
+    target = resolve_target(hostname)
+    normalized_hostname = target.hostname
+
+    if address_family == "ipv4":
+        addresses = list(target.ipv4_addresses)
+    elif address_family == "ipv6":
+        addresses = list(target.ipv6_addresses)
+    else:
+        addresses = sorted(
+            [
+                *target.ipv4_addresses,
+                *target.ipv6_addresses,
+            ]
+        )
+
+    if not addresses:
+        family_name = (
+            "IPv4"
+            if address_family == "ipv4"
+            else "IPv6"
+        )
+
+        raise OSError(
+            f"No validated {family_name} address is available "
+            f"for {normalized_hostname}."
+        )
 
     errors = []
 
@@ -212,13 +245,22 @@ def _request_once(url: str) -> ResponseSnapshot:
     )
 
 
-def _follow_redirects(start_url: str) -> HttpTrace:
+def _follow_redirects(
+    start_url: str,
+    address_family: AddressFamily | None = None,
+) -> HttpTrace:
     responses = []
     current_url = start_url
 
     for redirect_number in range(_MAX_REDIRECTS + 1):
         try:
-            response = _request_once(current_url)
+            if address_family is None:
+                response = _request_once(current_url)
+            else:
+                response = _request_once(
+                    current_url,
+                    address_family=address_family,
+                )
 
         except TargetValidationError as exc:
             return HttpTrace(
@@ -278,19 +320,27 @@ def _trace_detail(trace: HttpTrace) -> str:
     return detail
 
 
-def inspect_http(hostname: str) -> HttpTrace:
+def inspect_http(
+    hostname: str,
+    address_family: AddressFamily | None = None,
+) -> HttpTrace:
     """Return the validated HTTP redirect trace for a hostname."""
 
     return _follow_redirects(
-        f"http://{hostname}/"
+        f"http://{hostname}/",
+        address_family=address_family,
     )
 
 
-def inspect_https(hostname: str) -> HttpTrace:
+def inspect_https(
+    hostname: str,
+    address_family: AddressFamily | None = None,
+) -> HttpTrace:
     """Return the validated HTTPS redirect trace for a hostname."""
 
     return _follow_redirects(
-        f"https://{hostname}/"
+        f"https://{hostname}/",
+        address_family=address_family,
     )
 
 
