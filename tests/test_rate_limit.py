@@ -4,6 +4,10 @@ import app.main as main
 from app.checks.http import HttpTrace
 from app.models import CheckResult
 from app.rate_limit import SlidingWindowRateLimiter
+from app.diagnostics import (
+    AddressFamilyDiagnostics,
+    AddressFamilyResult,
+)
 
 
 client = TestClient(main.app)
@@ -27,6 +31,21 @@ def fake_diagnosis_with_traces(host):
         fake_results(),
         HttpTrace(responses=[]),
         HttpTrace(responses=[]),
+        fake_address_family_diagnostics(),
+    )
+
+
+def fake_address_family_diagnostics():
+    return AddressFamilyDiagnostics(
+        hostname="example.com",
+        ipv4=AddressFamilyResult(
+            family="ipv4",
+            addresses=("93.184.216.34",),
+        ),
+        ipv6=AddressFamilyResult(
+            family="ipv6",
+            addresses=(),
+        ),
     )
 
 
