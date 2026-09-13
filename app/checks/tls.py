@@ -3,6 +3,7 @@ import math
 import socket
 import ssl
 from datetime import datetime, timezone
+from typing import Literal
 
 from cryptography import x509
 from cryptography.x509.oid import NameOID
@@ -12,6 +13,7 @@ from app.models import CheckResult
 
 _TIMEOUT_SECONDS = 5
 _EXPIRY_WARNING_DAYS = 30
+AddressFamily = Literal["ipv4", "ipv6"]
 
 
 def _open_socket(address: str) -> socket.socket:
@@ -109,7 +111,14 @@ def _certificate_dns_names(certificate: x509.Certificate) -> list[str]:
         NameOID.COMMON_NAME
     )
 
-    return [attribute.value for attribute in common_names]
+    return [
+        (
+            attribute.value.decode("utf-8", errors="replace")
+            if isinstance(attribute.value, bytes)
+            else attribute.value
+        )
+        for attribute in common_names
+    ]
 
 
 def _dns_name_matches(pattern: str, hostname: str) -> bool:
@@ -132,16 +141,55 @@ def _dns_name_matches(pattern: str, hostname: str) -> bool:
 def check_tls(
     hostname: str,
     addresses: list[str],
+    address_family: AddressFamily | None = None,
 ) -> list[CheckResult]:
     """Inspect TLS and certificate health for a validated target."""
 
+    if address_family == "ipv4":
+        selected_addresses = [
+            address
+            for address in addresses
+            if ipaddress.ip_address(address).version == 4
+        ]
+    elif address_family == "ipv6":
+        selected_addresses = [
+            address
+            for address in addresses
+            if ipaddress.ip_address(address).version == 6
+        ]
+    else:
+        selected_addresses = addresses
+
     ordered_addresses = sorted(
-        addresses,
+        selected_addresses,
         key=lambda address: (
             ipaddress.ip_address(address).version,
             address,
         ),
     )
+
+    if not ordered_addresses:
+        family_name = (
+            "IPv4"
+            if address_family == "ipv4"
+            else "IPv6"
+        )
+
+        return [
+            CheckResult(
+                name="TLS connection",
+                category="TLS",
+                status="fail",
+                summary=(
+                    f"No {family_name} address is available "
+                    "for TLS testing."
+                ),
+                detail=(
+                    f"No validated {family_name} address is available "
+                    f"for {hostname}."
+                ),
+            )
+        ]
 
     certificate = None
     protocol = None
