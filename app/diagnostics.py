@@ -1,3 +1,5 @@
+import socket
+
 from dataclasses import dataclass
 from typing import Literal
 
@@ -19,6 +21,7 @@ AddressFamily = Literal["ipv4", "ipv6"]
 class AddressFamilyResult:
     family: AddressFamily
     addresses: tuple[str, ...]
+    scanner_available: bool | None = None
     tls_results: tuple[CheckResult, ...] = ()
     http_results: tuple[CheckResult, ...] = ()
     http_trace: HttpTrace | None = None
@@ -36,6 +39,48 @@ class AddressFamilyDiagnostics:
     ipv6: AddressFamilyResult
 
 
+def _scanner_can_route(
+    family: AddressFamily,
+    addresses: tuple[str, ...],
+) -> bool:
+    """
+    Determine whether the local scanner has a route for this address family.
+
+    UDP connect does not establish a remote connection or transmit
+    application data. It asks the operating system to select a route.
+    """
+
+    socket_family = (
+        socket.AF_INET
+        if family == "ipv4"
+        else socket.AF_INET6
+    )
+
+    for address in addresses:
+        sock = socket.socket(
+            socket_family,
+            socket.SOCK_DGRAM,
+        )
+
+        try:
+            if family == "ipv4":
+                destination = (address, 443)
+            else:
+                destination = (address, 443, 0, 0)
+
+            sock.connect(destination)
+
+            return True
+
+        except OSError:
+            continue
+
+        finally:
+            sock.close()
+
+    return False
+
+
 def _diagnose_family(
     hostname: str,
     family: AddressFamily,
@@ -45,6 +90,16 @@ def _diagnose_family(
         return AddressFamilyResult(
             family=family,
             addresses=(),
+        )
+
+    if not _scanner_can_route(
+        family,
+        addresses,
+    ):
+        return AddressFamilyResult(
+            family=family,
+            addresses=addresses,
+            scanner_available=False,
         )
 
     address_list = list(addresses)
@@ -75,6 +130,7 @@ def _diagnose_family(
     return AddressFamilyResult(
         family=family,
         addresses=addresses,
+        scanner_available=True,
         tls_results=tuple(tls_results),
         http_results=tuple(http_results),
         http_trace=http_trace,

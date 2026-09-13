@@ -1,0 +1,144 @@
+.surface-matrix {
+	margin-top: 2rem;
+	padding: 1.5rem 1.75rem;
+
+	border: 1px solid var(--border);
+	border-radius: 10px;
+
+	background: var(--surface);
+}
+
+.surface-matrix-header {
+	margin-bottom: 1.4rem;
+
+	display: flex;
+	justify-content: space-between;
+	align-items: end;
+	gap: 2rem;
+}
+
+.surface-matrix-header .eyebrow {
+	margin-bottom: 0.35rem;
+}
+
+.surface-matrix-header h2 {
+	margin: 0;
+
+	font-size: 1.15rem;
+	font-weight: 700;
+}
+
+.surface-matrix-description {
+	margin: 0;
+
+	color: var(--subtle);
+
+	font-size: 0.8rem;
+}
+
+.surface-matrix-table-wrap {
+	overflow-x: auto;
+}
+
+.surface-matrix-table {
+	width: 100%;
+	border-collapse: collapse;
+
+	table-layout: fixed;
+}
+
+.surface-matrix-table th,
+.surface-matrix-table td {
+	padding: 0.85rem 1rem;
+
+	border-bottom: 1px solid rgba(48, 54, 61, 0.7);
+
+	text-align: left;
+	vertical-align: middle;
+}
+
+.surface-matrix-table thead th {
+	color: var(--subtle);
+
+	font-family: monospace;
+	font-size: 0.68rem;
+	font-weight: 700;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
+.surface-matrix-table thead th:first-child {
+	width: 22%;
+}
+
+.surface-matrix-table tbody th {
+	color: var(--muted);
+
+	font-family: monospace;
+	font-size: 0.76rem;
+	font-weight: 700;
+}
+
+.surface-matrix-table tbody td {
+	color: var(--text);
+
+	font-family: monospace;
+	font-size: 0.82rem;
+}
+
+.surface-matrix-table tbody tr:last-child th,
+.surface-matrix-table tbody tr:last-child td {
+	border-bottom: 0;
+}
+
+.surface-value {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.45rem;
+}
+
+.surface-value.pass {
+	color: var(--pass);
+}
+
+.surface-value.warn {
+	color: var(--warn);
+}
+
+.surface-value.fail {
+	color: var(--fail);
+}
+
+.surface-value.muted {
+	color: var(--subtle);
+}
+
+.surface-value-code {
+	color: var(--cyan);
+	font-weight: 700;
+}
+
+@media (max-width: 700px) {
+	.surface-matrix {
+		padding: 1.25rem;
+	}
+
+	.surface-matrix-header {
+		align-items: flex-start;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.surface-matrix-table th,
+	.surface-matrix-table td {
+		padding: 0.75rem 0.65rem;
+	}
+
+	.surface-matrix-table thead th:first-child {
+		width: 28%;
+	}
+}
+
+.surface-value.scanner {
+	color: var(--blue);
+}

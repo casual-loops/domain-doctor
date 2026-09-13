@@ -11,9 +11,13 @@ from app.checks.dns import check_dns
 from app.checks.headers import check_security_headers
 from app.checks.http import check_http, inspect_http, inspect_https
 from app.checks.tls import check_tls
-from app.presentation import build_redirect_hops
 from app.rate_limit import SlidingWindowRateLimiter, get_client_identifier
 from app.security import TargetValidationError, validate_target
+from app.diagnostics import diagnose_address_families
+from app.presentation import (
+    build_redirect_hops,
+    build_surface_matrix,
+)
 
 
 APP_VERSION = "1.2.1"
@@ -91,7 +95,17 @@ def diagnose_host_with_traces(host: str):
         )
     )
 
-    return hostname, results, http_trace, https_trace
+    address_family_diagnostics = diagnose_address_families(
+        hostname
+    )
+
+    return (
+        hostname,
+        results,
+        http_trace,
+        https_trace,
+        address_family_diagnostics,
+    )
 
 
 def diagnose_host(host: str):
@@ -99,7 +113,7 @@ def diagnose_host(host: str):
     Run Domain Doctor diagnostics using the existing public contract.
     """
 
-    hostname, results, _, _ = diagnose_host_with_traces(host)
+    hostname, results, _, _, _ = diagnose_host_with_traces(host)
 
     return hostname, results
 
@@ -164,8 +178,14 @@ def check_page(
             browser_scan_rate_limiter,
             BROWSER_SCAN_RATE_LIMIT,
         )
-        hostname, results, http_trace, https_trace = diagnose_host_with_traces(host)
-
+        (
+            hostname,
+            results,
+            http_trace,
+            https_trace,
+            address_family_diagnostics,
+        ) = diagnose_host_with_traces(host)
+        
     except HTTPException as exc:
         if exc.status_code != 429:
             raise
@@ -276,6 +296,9 @@ def check_page(
             "https_trace": https_trace,
             "http_redirect_hops": build_redirect_hops(http_trace),
             "https_redirect_hops": build_redirect_hops(https_trace),
+            "surface_matrix": build_surface_matrix(
+                address_family_diagnostics
+            ),
             "error": None,
         },
     )

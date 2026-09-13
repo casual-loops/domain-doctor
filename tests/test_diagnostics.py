@@ -340,3 +340,58 @@ def test_address_family_diagnostics_preserves_independent_outcomes(
 
     assert result.ipv4.available is True
     assert result.ipv6.available is True
+
+
+def test_diagnose_family_marks_scanner_unavailable_when_no_route(
+    monkeypatch,
+):
+    network_calls = []
+
+    monkeypatch.setattr(
+        diagnostics,
+        "_scanner_can_route",
+        lambda family, addresses: False,
+    )
+
+    def unexpected_tls(*args, **kwargs):
+        network_calls.append("tls")
+        return []
+
+    def unexpected_http(*args, **kwargs):
+        network_calls.append("http")
+        return HttpTrace(responses=[])
+
+    monkeypatch.setattr(
+        diagnostics,
+        "check_tls",
+        unexpected_tls,
+    )
+
+    monkeypatch.setattr(
+        diagnostics,
+        "inspect_http",
+        unexpected_http,
+    )
+
+    monkeypatch.setattr(
+        diagnostics,
+        "inspect_https",
+        unexpected_http,
+    )
+
+    result = diagnostics._diagnose_family(
+        "example.com",
+        "ipv6",
+        (
+            "2606:2800:220:1:248:1893:25c8:1946",
+        ),
+    )
+
+    assert result.available is True
+    assert result.scanner_available is False
+    assert result.tls_results == ()
+    assert result.http_results == ()
+    assert result.http_trace is None
+    assert result.https_trace is None
+
+    assert network_calls == []
