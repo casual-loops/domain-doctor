@@ -270,6 +270,9 @@ def test_report_renders_surface_matrix_scanner_unavailable(
     assert response.status_code == 200
     assert "Surface Matrix" in response.text
     assert "Scanner unavailable" in response.text
+    assert "PARITY" in response.text
+    assert "UNAVAILABLE" in response.text
+    assert "IPv4 and IPv6 parity could not be compared." in response.text
 
 
 def test_blocked_report(monkeypatch):

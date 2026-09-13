@@ -97,4 +97,25 @@ family | attr(field) %} {% if not family.available %}
 			</tbody>
 		</table>
 	</div>
+	<div
+		class="surface-parity {{ parity_analysis.status }}"
+		aria-label="IPv4 and IPv6 parity analysis"
+	>
+		<div class="surface-parity-heading">
+			<span class="surface-parity-label">PARITY</span>
+			<span class="surface-parity-status">
+				{% if parity_analysis.status == "not_applicable" %} N/A {% elif
+				parity_analysis.status == "unavailable" %} UNAVAILABLE {% else %} {{
+				parity_analysis.status | upper }} {% endif %}
+			</span>
+		</div>
+
+		<div class="surface-parity-copy">
+			<p class="surface-parity-summary">{{ parity_analysis.summary }}</p>
+
+			{% if parity_analysis.detail %}
+			<p class="surface-parity-detail">{{ parity_analysis.detail }}</p>
+			{% endif %}
+		</div>
+	</div>
 </section>
