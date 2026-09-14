@@ -49,7 +49,7 @@ Example:
 ```yaml
 services:
   app:
-    image: ghcr.io/casual-loops/domain-doctor:1.3.1
+    image: ghcr.io/casual-loops/domain-doctor:1.3.2
 ```
 
 ## Deployment procedure
@@ -148,6 +148,7 @@ After deployment, verify all of the following:
 14. The homepage emits a single `twitter:card` declaration using `summary_large_image`.
 15. `og:image` and `twitter:image` reference the current versioned social preview image.
 16. The social preview image returns HTTP 200 for both normal requests and the `Twitterbot/1.0` user agent.
+17. The homepage includes `/static/landing.css` and the intended landing-page layout renders correctly.
 
 ## Rollback
 
